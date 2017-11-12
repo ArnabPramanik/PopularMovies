@@ -35,6 +35,17 @@ public class NetworkUtils {
         }
         return null;
     }
+
+    public static URL buildUrl_highestRated(){
+        Uri buildUri = Uri.parse(BASE_URL + TOP_RATED + "?api_key=" + API_KEY);
+        try {
+            URL url = new URL(buildUri.toString());
+            return url;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
     public static boolean isOnline(Context context) {
         ConnectivityManager cm =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
