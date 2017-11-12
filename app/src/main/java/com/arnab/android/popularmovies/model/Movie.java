@@ -77,6 +77,9 @@ public class Movie {
     public void setOriginal_language(String original_language) {
         this.original_language = original_language;
     }
+    public String toString(){
+        return title + " " + vote_average;
+    }
 
 
 }

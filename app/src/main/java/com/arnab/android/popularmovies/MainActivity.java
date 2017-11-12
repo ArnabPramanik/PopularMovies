@@ -9,6 +9,9 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -25,7 +28,7 @@ import java.io.IOException;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-    private TextView mMovieListView;
+
     private TextView mErrorMessageView;
     private ProgressBar mLoadingIndicator;
     private int navMenuItem;
@@ -34,14 +37,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggle;
     NavigationView mNavigationView;
+
+    //Recycler View
+    private MoviesAdapter mAdapter;
+    private RecyclerView mRecyclerView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mMovieListView = (TextView) findViewById(R.id.tv_movie_data);
         mErrorMessageView = (TextView) findViewById(R.id.tv_error_message_display);
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
-
 
         //Navigation Menu
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
@@ -51,6 +56,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mNavigationView = (NavigationView) findViewById(R.id.navigationView);
         mNavigationView.setNavigationItemSelectedListener(this);
+
+        //RecyclerView
+        mRecyclerView = (RecyclerView) findViewById(R.id.rv_movieData);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
+        mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setHasFixedSize(true);
+        mAdapter = new MoviesAdapter();
+        mRecyclerView.setAdapter(mAdapter);
+
+
+
+
         loadMovieData();
     }
 
@@ -61,11 +78,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mErrorMessageView.setVisibility(View.INVISIBLE);
 
-        mMovieListView.setVisibility(View.VISIBLE);
+        mRecyclerView.setVisibility(View.VISIBLE);
     }
     private void showErrorMessage() {
 
-        mMovieListView.setVisibility(View.INVISIBLE);
+        mRecyclerView.setVisibility(View.INVISIBLE);
 
         mErrorMessageView.setVisibility(View.VISIBLE);
     }
@@ -75,7 +92,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         protected void onPreExecute() {
             super.onPreExecute();
             mLoadingIndicator.setVisibility(View.VISIBLE);
-            mMovieListView.setText("");
+            mAdapter.setMovieData(null);
+
         }
 
         @Override
@@ -105,9 +123,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             mLoadingIndicator.setVisibility(View.INVISIBLE);
             if(movies != null) {
                 showMovieDataView();
-                for (int count = 0; count < movies.length; count++) {
-                    mMovieListView.append(movies[count].getTitle() + " " + movies[count].getVote_average() + "\n\n");
-                }
+                mAdapter.setMovieData(movies);
+
             }
             else{
                 showErrorMessage();
