@@ -27,7 +27,7 @@ import org.w3c.dom.Text;
 import java.io.IOException;
 import java.net.URL;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,MoviesAdapter.MovieAdapterOnClickHandler{
 
     private TextView mErrorMessageView;
     private ProgressBar mLoadingIndicator;
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         LinearLayoutManager layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
-        mAdapter = new MoviesAdapter();
+        mAdapter = new MoviesAdapter(this);
         mRecyclerView.setAdapter(mAdapter);
 
 
@@ -85,6 +85,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mRecyclerView.setVisibility(View.INVISIBLE);
 
         mErrorMessageView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onClick(String movie) {
+        if(mToast != null){
+            mToast.cancel();
+        }
+        mToast = Toast.makeText(this,movie,Toast.LENGTH_SHORT);
+        mToast.show();
     }
 
     private class MyAsyncTask extends AsyncTask<String,Void,Movie[]>{

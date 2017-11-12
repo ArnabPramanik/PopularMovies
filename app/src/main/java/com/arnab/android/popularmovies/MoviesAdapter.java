@@ -7,7 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
+import android.view.View.OnClickListener;
 import com.arnab.android.popularmovies.model.Movie;
 
 /**
@@ -16,8 +16,14 @@ import com.arnab.android.popularmovies.model.Movie;
 
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdapterViewHolder> {
     private Movie[] movies;
-    public MoviesAdapter(){
+    private final MovieAdapterOnClickHandler mClickHandler;
 
+    public interface MovieAdapterOnClickHandler {
+        void onClick(String movie);
+    }
+
+    public MoviesAdapter(MovieAdapterOnClickHandler clickHandler){
+        mClickHandler = clickHandler;
     }
     @Override
     public MoviesAdapter.MoviesAdapterViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
@@ -52,14 +58,22 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
         notifyDataSetChanged();
     }
 
-    public class MoviesAdapterViewHolder extends RecyclerView.ViewHolder{
+    public class MoviesAdapterViewHolder extends RecyclerView.ViewHolder implements OnClickListener {
         public final TextView movieDataView;
 
 
         public MoviesAdapterViewHolder(View itemView) {
             super(itemView);
             movieDataView = (TextView)  itemView.findViewById(R.id.tv_movie_data);
+            itemView.setOnClickListener(this);
+        }
 
+        @Override
+        public void onClick(View itemView) {
+            int adapterPosition = getAdapterPosition();
+            String singleMovie = movies[adapterPosition].toString();
+            mClickHandler.onClick(singleMovie);
         }
     }
+
 }
