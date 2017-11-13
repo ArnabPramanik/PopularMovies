@@ -1,5 +1,6 @@
 package com.arnab.android.popularmovies;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -42,6 +43,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Recycler View
     private MoviesAdapter mAdapter;
     private RecyclerView mRecyclerView;
+
+    //Extra tag
+    public final static String EXTRA_MOVIE_OBJECT = "extra_movie_object";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,12 +93,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void onClick(String movie) {
-        if(mToast != null){
-            mToast.cancel();
-        }
-        mToast = Toast.makeText(this,movie,Toast.LENGTH_SHORT);
-        mToast.show();
+    public void onClick(Movie movie) {
+        Intent intent = new Intent(this, DetailView.class);
+        intent.putExtra(EXTRA_MOVIE_OBJECT,movie);
+        startActivity(intent);
     }
 
     private class MyAsyncTask extends AsyncTask<String,Void,Movie[]>{

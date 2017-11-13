@@ -1,10 +1,14 @@
 package com.arnab.android.popularmovies.model;
 
+import android.os.Parcelable;
+
+import java.io.Serializable;
+
 /**
  * Created by arnab on 11/12/17.
  */
 
-public class Movie {
+public class Movie implements Serializable{
     private int vote_count;
     private int id;
     private boolean video;
@@ -13,7 +17,31 @@ public class Movie {
     private double popularity;
     private String poster_path;
     private String original_language;
-    
+    private String overview;
+    private String release_date;
+
+
+    public String getOverview() {
+        return overview;
+    }
+
+    public void setOverview(String overview) {
+        this.overview = overview;
+    }
+
+
+
+
+    public String getRelease_date() {
+        return release_date;
+    }
+
+    public void setRelease_date(String release_date) {
+        this.release_date = release_date;
+    }
+
+
+
     public int getVote_count() {
         return vote_count;
     }

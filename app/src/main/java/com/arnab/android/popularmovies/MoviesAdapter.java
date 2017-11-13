@@ -23,7 +23,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
     private Context mContext;
 
     public interface MovieAdapterOnClickHandler {
-        void onClick(String movie);
+        void onClick(Movie movie);
     }
 
     public MoviesAdapter(MovieAdapterOnClickHandler clickHandler,Context context){
@@ -79,7 +79,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
         @Override
         public void onClick(View itemView) {
             int adapterPosition = getAdapterPosition();
-            String singleMovie = movies[adapterPosition].toString();
+            Movie singleMovie = movies[adapterPosition];
             mClickHandler.onClick(singleMovie);
         }
     }

@@ -28,6 +28,8 @@ public class JsonParser {
                 movie.setTitle(movieData.getString("title"));
                 movie.setVote_average(movieData.getDouble("vote_average"));
                 movie.setPoster_path(movieData.getString("poster_path"));
+                movie.setRelease_date(movieData.getString("release_date"));
+                movie.setOverview(movieData.getString("overview"));
                 movies[count] = movie;
             }
             return movies;
