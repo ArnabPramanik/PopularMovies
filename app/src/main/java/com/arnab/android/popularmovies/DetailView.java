@@ -2,6 +2,7 @@ package com.arnab.android.popularmovies;
 
 import android.content.Intent;
 import android.media.Image;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ImageView;
@@ -45,5 +46,10 @@ public class DetailView extends AppCompatActivity {
             mDate.setText(String.valueOf(movie.getRelease_date()));
             mSynopsis.setText(movie.getOverview());
         }
+
+        ActionBar ab = getSupportActionBar();
+
+        // Enable the Up button
+        ab.setDisplayHomeAsUpEnabled(true);
 }
 }
