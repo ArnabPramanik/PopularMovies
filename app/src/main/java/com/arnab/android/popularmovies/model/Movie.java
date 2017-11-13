@@ -13,7 +13,7 @@ public class Movie {
     private double popularity;
     private String poster_path;
     private String original_language;
-
+    
     public int getVote_count() {
         return vote_count;
     }

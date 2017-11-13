@@ -24,7 +24,8 @@ public class NetworkUtils {
     static final String POPULAR = "/popular";
     static final String TOP_RATED = "/top_rated";
     static final String API_KEY = "";
-
+    public static final String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/";
+    public static final String IMAGE_WIDTH = "w500/";
     public static URL buildUrl_popular(){
         Uri buildUri = Uri.parse(BASE_URL + POPULAR + "?api_key=" + API_KEY);
         try {

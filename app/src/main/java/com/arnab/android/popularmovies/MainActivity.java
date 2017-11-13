@@ -9,6 +9,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -59,10 +60,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //RecyclerView
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_movieData);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
+        GridLayoutManager layoutManager = new GridLayoutManager(this,2);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
-        mAdapter = new MoviesAdapter(this);
+        mAdapter = new MoviesAdapter(this,this);
         mRecyclerView.setAdapter(mAdapter);
 
 

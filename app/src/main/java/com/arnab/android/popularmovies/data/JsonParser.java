@@ -27,6 +27,7 @@ public class JsonParser {
                 movie.setId(movieData.getInt("id"));
                 movie.setTitle(movieData.getString("title"));
                 movie.setVote_average(movieData.getDouble("vote_average"));
+                movie.setPoster_path(movieData.getString("poster_path"));
                 movies[count] = movie;
             }
             return movies;
