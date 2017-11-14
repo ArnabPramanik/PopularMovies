@@ -4,7 +4,10 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -29,12 +32,13 @@ import org.w3c.dom.Text;
 import java.io.IOException;
 import java.net.URL;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,MoviesAdapter.MovieAdapterOnClickHandler{
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,MoviesAdapter.MovieAdapterOnClickHandler,LoaderManager.LoaderCallbacks<String[]> {
 
     private TextView mErrorMessageView;
     private ProgressBar mLoadingIndicator;
     private int navMenuItem;
     private Toast mToast;
+    Movie [] mMovies;
     //Navigation Menu
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggle;
@@ -46,6 +50,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Extra tag
     public final static String EXTRA_MOVIE_OBJECT = "extra_movie_object";
+    //Saving instance state
+    public final static String RECYCLER_STATE = "recycler_state";
+    public final static String MOVIE_DATA_MAIN = "movie_data_main";
+
+    private final static int LOADERID = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,13 +80,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mRecyclerView.setAdapter(mAdapter);
 
 
-
-
-        loadMovieData();
+        if(savedInstanceState != null){
+            mMovies = (Movie[]) savedInstanceState.getSerializable(MOVIE_DATA_MAIN);
+            mAdapter.setMovieData(mMovies);
+            layoutManager.onRestoreInstanceState(savedInstanceState.getParcelable(RECYCLER_STATE));
+        }
+        else {
+            loadMovieData();
+        }
     }
 
+
+
     private void loadMovieData(){
-        new MyAsyncTask().execute("");
+        LoaderManager loaderManager = getSupportLoaderManager();
+        Loader<String> loader = loaderManager.getLoader(LOADERID);
+        if(loader == null){
+            loaderManager.initLoader(LOADERID,null,this);
+
+        }
+        else{
+            loaderManager.restartLoader(LOADERID,null,this);
+        }
+
+        //getSupportLoaderManager().initLoader(LOADERID, null, this);
     }
     private void showMovieDataView() {
 
@@ -99,51 +125,76 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         startActivity(intent);
     }
 
-    private class MyAsyncTask extends AsyncTask<String,Void,Movie[]>{
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            mLoadingIndicator.setVisibility(View.VISIBLE);
-            mAdapter.setMovieData(null);
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(MOVIE_DATA_MAIN,mMovies);
+        outState.putParcelable(RECYCLER_STATE, mRecyclerView.getLayoutManager().onSaveInstanceState());
+    }
+
+    @Override
+    public Loader<String[]> onCreateLoader(int id, Bundle args) {
+        return new AsyncTaskLoader<String[]>(this) {
+            @Override
+            protected void onStartLoading() {
+                super.onStartLoading();
+                mLoadingIndicator.setVisibility(View.VISIBLE);
+                mAdapter.setMovieData(null);
+                forceLoad();
+
+            }
+
+            @Override
+            public String[] loadInBackground() {
+                URL url = NetworkUtils.buildUrl_popular();
+                if(navMenuItem == R.id.action_popular_movies) {
+                    url = NetworkUtils.buildUrl_popular();
+                }
+                else if(navMenuItem == R.id.action_top_rated_movies){
+                    url = NetworkUtils.buildUrl_highestRated();
+                }
+                try {
+                    String jsonStr = NetworkUtils.getResponseFromHttpUrl(url,MainActivity.this);
+
+                    mMovies = JsonParser.getMovieObjects(jsonStr);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch(NullPointerException e){
+                    e.printStackTrace();
+                }
+                return new String[0];
+            }
+
+            @Override
+            public void deliverResult(String[] data) {
+                super.deliverResult(data);
+            }
+        };
+    }
+
+    @Override
+    public void onLoadFinished(Loader<String[]> loader, String[] data) {
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        if(mMovies != null) {
+            showMovieDataView();
+            mAdapter.setMovieData(mMovies);
 
         }
-
-        @Override
-        protected Movie[] doInBackground(String ... params) {
-            URL url = NetworkUtils.buildUrl_popular();
-            if(navMenuItem == R.id.action_popular_movies) {
-                url = NetworkUtils.buildUrl_popular();
-            }
-            else if(navMenuItem == R.id.action_top_rated_movies){
-                url = NetworkUtils.buildUrl_highestRated();
-            }
-            try {
-                String jsonStr = NetworkUtils.getResponseFromHttpUrl(url,MainActivity.this);
-
-                Movie [] movies = JsonParser.getMovieObjects(jsonStr);
-                return movies;
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch(NullPointerException e){
-                e.printStackTrace();
-            }
-            return null;
+        else{
+            showErrorMessage();
         }
+    }
 
-        @Override
-        protected void onPostExecute(Movie[] movies) {
-            mLoadingIndicator.setVisibility(View.INVISIBLE);
-            if(movies != null) {
-                showMovieDataView();
-                mAdapter.setMovieData(movies);
-
-            }
-            else{
-                showErrorMessage();
-            }
-        }
+    @Override
+    public void onLoaderReset(Loader<String[]> loader) {
 
     }
+
+
+
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
