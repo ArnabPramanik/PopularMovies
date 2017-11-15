@@ -36,6 +36,8 @@ public class JsonParser {
             //Log.v("POPULAR", popular_movies.toString());
         } catch (JSONException e) {
             e.printStackTrace();
+        }catch(NullPointerException e){
+            e.printStackTrace();
         }
 
         return null;

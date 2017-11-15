@@ -25,12 +25,14 @@ public class DetailView extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_view);
 
+
         mPoster = (ImageView)findViewById(R.id.iv_poster);
         mTitle = (TextView)findViewById(R.id.tv_title);
         mRating = (TextView)findViewById(R.id.tv_rating);
         mSynopsis = (TextView)findViewById(R.id.tv_synopsis);
         mDate = (TextView)findViewById(R.id.tv_release_date);
 
+        getSupportActionBar().setTitle("Details");
         //Get intent and populate fields
         Intent intentThatStartedThisActivity = getIntent();
         Movie movie = null;
