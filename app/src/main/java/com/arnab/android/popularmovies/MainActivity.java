@@ -1,5 +1,6 @@
 package com.arnab.android.popularmovies;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
@@ -16,6 +17,7 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,6 +33,8 @@ import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.net.URL;
+
+import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,MoviesAdapter.MovieAdapterOnClickHandler,LoaderManager.LoaderCallbacks<String[]> {
 
@@ -54,8 +58,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Saving instance state
     public final static String RECYCLER_STATE = "recycler_state";
     public final static String MOVIE_DATA_MAIN = "movie_data_main";
-    private Bundle globalBundle;
+
     private final static int LOADERID = 1;
+    boolean mBigWidth = false;
 
 
     @Override
@@ -76,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //RecyclerView
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_movieData);
-        layoutManager = new GridLayoutManager(this,2);
+        setLayout();
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
         mAdapter = new MoviesAdapter(this,this);
@@ -86,10 +91,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(savedInstanceState != null) {
 
             mMovies = (Movie[]) savedInstanceState.getSerializable(MOVIE_DATA_MAIN);
-            mAdapter.setMovieData(mMovies);
+            mAdapter.setMovieData(mMovies,mBigWidth);
             layoutManager.onRestoreInstanceState(savedInstanceState.getParcelable(RECYCLER_STATE));
         }
         loadMovieData();
+    }
+    public static int calculateNoOfColumns(Context context) {
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+        int noOfColumns = (int) (dpWidth / 100);
+        return noOfColumns;
+    }
+
+
+    private void setLayout(){
+
+        if(getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE){
+
+            int width = calculateNoOfColumns(this);
+            layoutManager = new GridLayoutManager(this,width);
+            mBigWidth = true;
+
+        }else{
+            int width = calculateNoOfColumns(this);
+            layoutManager = new GridLayoutManager(this,width );
+            mBigWidth = false;
+        }
     }
 
 
@@ -144,15 +171,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return new AsyncTaskLoader<String[]>(this) {
             @Override
             protected void onStartLoading() {
-                Log.wtf("ALSO","RUNNING");
+
                 if(mMovies != null){
-                    Log.wtf("IN","HERE");
+
                     deliverResult(new String[]{"A"});
                 }
                 else {
 
                     mLoadingIndicator.setVisibility(View.VISIBLE);
-                    mAdapter.setMovieData(null);
+                    mAdapter.setMovieData(null,mBigWidth);
                     forceLoad();
                 }
 
@@ -194,10 +221,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mLoadingIndicator.setVisibility(View.INVISIBLE);
 
         if(mMovies != null ) {
-            Log.wtf("NULL","NOT NULL");
 
             showMovieDataView();
-            mAdapter.setMovieData(mMovies);
+            mAdapter.setMovieData(mMovies,mBigWidth);
 
         }
         else{

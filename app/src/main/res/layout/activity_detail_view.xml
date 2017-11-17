@@ -1,63 +1,201 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context="com.arnab.android.popularmovies.DetailView">
 
-    <ImageView
-        android:id="@+id/iv_poster"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="21dp"
-        tools:src="@drawable/ic_menu_gallery"
-        android:layout_below="@+id/tv_title"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginLeft="42dp"
-        android:layout_marginStart="42dp" />
 
-    <TextView
-        android:id="@+id/tv_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="75dp"
-        android:layout_marginStart="75dp"
-        android:layout_marginTop="15dp"
-        tools:text="TextView"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/iv_poster" />
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="256dp"
+        android:fitsSystemWindows="true"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-    <TextView
-        android:id="@+id/tv_release_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="TextView"
-        android:layout_below="@+id/iv_poster"
-        android:layout_alignLeft="@+id/tv_title"
-        android:layout_alignStart="@+id/tv_title"
-        android:layout_marginTop="29dp" />
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/collapsingToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="true"
+            app:contentScrim="?attr/colorPrimary"
+            app:expandedTitleMarginStart="40dp"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-    <TextView
-        android:id="@+id/tv_rating"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="41dp"
-        tools:text="TextView"
-        android:layout_below="@+id/tv_release_date"
-        android:layout_alignLeft="@+id/tv_release_date"
-        android:layout_alignStart="@+id/tv_release_date" />
+            <ImageView
+                android:id="@+id/iv_backdrop_detail"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fitsSystemWindows="true"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_menu_gallery"
+                app:layout_collapseMode="pin"/>
 
-    <TextView
-        android:id="@+id/tv_synopsis"
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:elevation="7dp"
+                app:layout_collapseMode="pin" />
+
+        </android.support.design.widget.CollapsingToolbarLayout>
+
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_rating"
-        android:layout_marginTop="30dp"
-        tools:text="TextView"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-</RelativeLayout>
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_happy"
+        app:layout_anchor="@+id/nestedScrollView"
+        app:layout_anchorGravity="bottom|right"/>
+
+    <!-- Your Scrollable View : Can be Nested Scroll View or Recycler View-->
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#C49696"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+<LinearLayout
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            app:cardBackgroundColor="#C43A3A"
+            app:cardElevation="4dp">
+
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <View
+                    android:id="@+id/view"
+                    android:layout_width="1020dp"
+                    android:layout_height="1dp"
+                    android:layout_marginLeft="43dp"
+                    android:layout_marginBottom="0dp"
+                    android:background="#C49696"
+                    app:layout_constraintLeft_toLeftOf="@+id/iv_poster_detail"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_release_date_detail"
+                    app:layout_constraintBottom_toTopOf="@+id/tv_rating_detail"
+                    app:layout_constraintVertical_bias="1.0" />
+
+                <ImageView
+                    android:id="@+id/iv_poster_detail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="150dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:src="@drawable/ic_menu_gallery"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.0"
+                    tools:layout_editor_absoluteX="5dp" />
+
+                <TextView
+                    android:id="@+id/tv_title_detail"
+                    android:maxLines="3"
+                    android:ellipsize="end"
+                    android:layout_width="220sp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="30dp"
+                    android:fontFamily="serif-monospace"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintLeft_toRightOf="@+id/iv_poster_detail"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+
+                    tools:text="Hunger Games MockingJay: Part 1" />
+
+                <TextView
+                    android:id="@+id/tv_release_date_detail"
+                    android:layout_width="180dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="0dp"
+                    android:fontFamily="serif-monospace"
+                    android:textSize="17sp"
+                    android:textColor="#FFFFFF"
+                    app:layout_constraintLeft_toRightOf="@+id/iv_poster_detail"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_title_detail"
+                    tools:text="2016" />
+
+                <TextView
+                    android:id="@+id/tv_rating_detail"
+                    android:fontFamily="serif-monospace"
+                    android:textStyle="bold|italic"
+                    android:textColor="#FDBD03"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="0dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginTop="0dp"
+                    android:drawableRight="@drawable/star"
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+
+                    app:layout_constraintVertical_bias="0.0"
+                    tools:text="TextView"
+                    app:layout_constraintLeft_toRightOf="@+id/iv_poster_detail" />
+
+                <TextView
+                    android:id="@+id/tv_voter_count_detail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableRight="@drawable/ic_people_black_24dp"
+                    tools:text="TextView"
+                    android:textSize="20sp"
+                    android:fontFamily="serif-monospace"
+                    android:textStyle="bold|italic"
+                    android:textColor="#FDBD03"
+                    android:layout_marginRight="329dp"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_marginBottom="1dp"
+                    app:layout_constraintLeft_toRightOf="@+id/tv_rating_detail"
+                    android:layout_marginLeft="8dp"
+                    app:layout_constraintHorizontal_bias="0.0" />
+
+
+            </android.support.constraint.ConstraintLayout>
+        </android.support.v7.widget.CardView>
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            app:cardBackgroundColor="#C43A3A"
+            app:cardElevation="4dp">
+            <com.borjabravo.readmoretextview.ReadMoreTextView
+                android:id="@+id/tv_overview_detail"
+                android:padding="4dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:fontFamily="serif-monospace"
+                android:textStyle="normal"
+                android:textColor="#FFFFFF"
+                app:trimExpandedText="Show More"
+                app:trimCollapsedText="Show Less"
+                app:trimMode="trimModeLine"
+                app:trimLines="3"
+                app:colorClickableText="#000000"
+                />
+        </android.support.v7.widget.CardView>
+</LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
+
+</android.support.design.widget.CoordinatorLayout>

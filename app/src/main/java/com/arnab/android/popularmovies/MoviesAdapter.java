@@ -21,7 +21,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
     private Movie[] movies;
     private final MovieAdapterOnClickHandler mClickHandler;
     private Context mContext;
-
+    boolean mBigwidth;
     public interface MovieAdapterOnClickHandler {
         void onClick(Movie movie);
     }
@@ -43,10 +43,17 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
 
     @Override
     public void onBindViewHolder(MoviesAdapter.MoviesAdapterViewHolder moviesAdapterViewHolder, int position) {
-        String singleMovie = movies[position].toString();
-        moviesAdapterViewHolder.movieDataView.setText(singleMovie);
-        Picasso.with(mContext).load(NetworkUtils.IMAGE_BASE_URL + NetworkUtils.IMAGE_WIDTH + movies[position].getPoster_path()).into(moviesAdapterViewHolder.thumbnail);
-
+        Movie singleMovie = movies[position];
+        moviesAdapterViewHolder.movieTitleView.setText(singleMovie.getTitle());
+        moviesAdapterViewHolder.movieRatingView.setText(String.valueOf(singleMovie.getVote_average()));
+        if(mBigwidth == false) {
+            //moviesAdapterViewHolder.thumbnail.getLayoutParams().height = 450;
+            Picasso.with(mContext).load(NetworkUtils.IMAGE_BASE_URL + NetworkUtils.IMAGE_WIDTH_s + movies[position].getPoster_path()).into(moviesAdapterViewHolder.thumbnail);
+        }
+        else{
+            //moviesAdapterViewHolder.thumbnail.getLayoutParams().height = 450;
+            Picasso.with(mContext).load(NetworkUtils.IMAGE_BASE_URL + NetworkUtils.IMAGE_WIDTH_s + movies[position].getPoster_path()).into(moviesAdapterViewHolder.thumbnail);
+        }
 
     }
 
@@ -60,19 +67,22 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
         }
     }
 
-    public void setMovieData(Movie[] movies){
+    public void setMovieData(Movie[] movies,boolean bigwidth){
         this.movies = movies;
+        mBigwidth = bigwidth;
         notifyDataSetChanged();
     }
 
     public class MoviesAdapterViewHolder extends RecyclerView.ViewHolder implements OnClickListener {
-        public final TextView movieDataView;
+        public final TextView movieTitleView;
         public final ImageView thumbnail;
+        public final TextView movieRatingView;
 
         public MoviesAdapterViewHolder(View itemView) {
             super(itemView);
-            movieDataView = (TextView)  itemView.findViewById(R.id.tv_movie_data);
-            thumbnail = (ImageView) itemView.findViewById(R.id.iv_thumbnail);
+            movieTitleView = (TextView)  itemView.findViewById(R.id.tv_movie_title_main);
+            thumbnail = (ImageView) itemView.findViewById(R.id.iv_thumbnail_main);
+            movieRatingView = (TextView) itemView.findViewById(R.id.tv_movie_rating_main);
             itemView.setOnClickListener(this);
         }
 

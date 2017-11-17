@@ -30,6 +30,7 @@ public class JsonParser {
                 movie.setPoster_path(movieData.getString("poster_path"));
                 movie.setRelease_date(movieData.getString("release_date"));
                 movie.setOverview(movieData.getString("overview"));
+                movie.setBackdrop_path(movieData.getString("backdrop_path"));
                 movies[count] = movie;
             }
             return movies;

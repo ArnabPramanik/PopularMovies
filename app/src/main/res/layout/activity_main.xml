@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.arnab.android.popularmovies.MainActivity"
-    android:id="@+id/drawerLayout">
+    android:id="@+id/drawerLayout"
+    android:background="#C49696">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -30,9 +31,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/rv_movieData"
-            android:layout_marginLeft="9sp"
+            android:layout_marginLeft="7sp"
             android:layout_marginRight="5sp"
             android:scrollbars="vertical"
+
             >
         </android.support.v7.widget.RecyclerView>
 
