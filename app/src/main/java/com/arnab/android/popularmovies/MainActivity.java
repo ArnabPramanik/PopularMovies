@@ -97,16 +97,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NetworkUtils.PAGE = 1;
         currentPage = NetworkUtils.PAGE;
         prevPage = currentPage - 1;
-        Log.wtf("IN on create","in create");
+
         if(savedInstanceState != null) {
 
             mMovies = (ArrayList<Movie>) savedInstanceState.getSerializable(MOVIE_DATA_MAIN);
             navMenuItem = (int) savedInstanceState.getInt(NAVIGATION_CHOICE);
             if(mMovies != null) {
-                Log.wtf("IN sved","in instance");
+
                mAdapter.setMovieData(mMovies, mBigWidth);
             }
             NetworkUtils.PAGE = savedInstanceState.getInt(SAVE_PAGE);
+            if(navMenuItem == R.id.action_popular_movies) {
+                getSupportActionBar().setTitle("Popular Movies");
+            }else if(navMenuItem == R.id.action_top_rated_movies) {
+                getSupportActionBar().setTitle("Top Rated Movies");
+
+            }
             currentPage = NetworkUtils.PAGE;
             prevPage = currentPage - 1;
             layoutManager.onRestoreInstanceState(savedInstanceState.getParcelable(RECYCLER_STATE));
@@ -230,14 +236,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                Log.wtf("IN This method","in this method");
                 URL url = NetworkUtils.buildUrl_popular();
                 if(navMenuItem == R.id.action_popular_movies) {
-                    getSupportActionBar().setTitle("Popular Movies");
+
                     url = NetworkUtils.buildUrl_popular();
                 }
                 else if(navMenuItem == R.id.action_top_rated_movies){
-                    getSupportActionBar().setTitle("Top Rated Movies");
+
                     url = NetworkUtils.buildUrl_highestRated();
                 }
                 try {
@@ -264,11 +269,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onLoadFinished(Loader<String[]> loader, String[] data) {
 
         mLoadingIndicator.setVisibility(View.INVISIBLE);
-
+        if(navMenuItem == R.id.action_popular_movies) {
+            getSupportActionBar().setTitle("Popular Movies");
+        }else if(navMenuItem == R.id.action_top_rated_movies) {
+            getSupportActionBar().setTitle("Top Rated Movies");
+        }
         if(mMovies != null ) {
-            Log.wtf(String.valueOf(prevPage),String.valueOf(currentPage));
+
             if(prevPage != currentPage) {
-                Log.wtf("IN here movies",String.valueOf(mMovies.size()));
+
                 prevPage = currentPage;
                 showMovieDataView();
                 mAdapter.setMovieData(mMovies, mBigWidth);
@@ -303,7 +312,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             mToast = Toast.makeText(this, "Top Rated Movies", Toast.LENGTH_SHORT);
             mToast.show();
-            getSupportActionBar().setTitle("Top Rated Movies");
             mAdapter.movies.clear();
             mAdapter.notifyDataSetChanged();
             NetworkUtils.PAGE = 1;
