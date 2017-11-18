@@ -91,6 +91,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             layoutManager.onRestoreInstanceState(savedInstanceState.getParcelable(RECYCLER_STATE));
             navMenuItem = savedInstanceState.getInt(NAVIGATION_CHOICE);
         }
+        if(navMenuItem == R.id.action_popular_movies){
+            getSupportActionBar().setTitle("Popular Movies");
+        } else if(navMenuItem == R.id.action_top_rated_movies){
+            getSupportActionBar().setTitle("Top Rated Movies");
+        }
         loadMovieData();
     }
 
@@ -162,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             @Override
             public String[] loadInBackground() {
-
+                
                 URL url = NetworkUtils.buildUrl_popular();
                 if(navMenuItem == R.id.action_popular_movies) {
                     url = NetworkUtils.buildUrl_popular();
