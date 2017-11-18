@@ -30,7 +30,7 @@ public class NetworkUtils {
     public static final String IMAGE_WIDTH_l = "w780/";
     public static int PAGE = 1;
     public static URL buildUrl_popular(){
-        Log.wtf(String.valueOf(PAGE),"IN HERE");
+
         Uri buildUri = Uri.parse(BASE_URL + POPULAR + "?api_key=" + API_KEY + "&language=en-US&page=" + String.valueOf(PAGE));
         try {
             URL url = new URL(buildUri.toString());
