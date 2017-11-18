@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,8 +28,10 @@ public class NetworkUtils {
     public static final String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/";
     public static final String IMAGE_WIDTH_s = "w342/";
     public static final String IMAGE_WIDTH_l = "w780/";
+    public static int PAGE = 1;
     public static URL buildUrl_popular(){
-        Uri buildUri = Uri.parse(BASE_URL + POPULAR + "?api_key=" + API_KEY);
+        Log.wtf(String.valueOf(PAGE),"IN HERE");
+        Uri buildUri = Uri.parse(BASE_URL + POPULAR + "?api_key=" + API_KEY + "&language=en-US&page=" + String.valueOf(PAGE));
         try {
             URL url = new URL(buildUri.toString());
             return url;
@@ -39,7 +42,7 @@ public class NetworkUtils {
     }
 
     public static URL buildUrl_highestRated(){
-        Uri buildUri = Uri.parse(BASE_URL + TOP_RATED + "?api_key=" + API_KEY);
+        Uri buildUri = Uri.parse(BASE_URL + TOP_RATED + "?api_key=" + API_KEY + "&language=en-US&page=" + String.valueOf(PAGE));
         try {
             URL url = new URL(buildUri.toString());
             return url;

@@ -11,14 +11,18 @@ import android.widget.TextView;
 import android.view.View.OnClickListener;
 import com.arnab.android.popularmovies.model.Movie;
 import com.arnab.android.popularmovies.utils.NetworkUtils;
+import com.jcodecraeer.xrecyclerview.XRecyclerView;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
 
 /**
  * Created by arnab on 11/12/17.
  */
 
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdapterViewHolder> {
-    private Movie[] movies;
+
+    public ArrayList<Movie> movies;
     private final MovieAdapterOnClickHandler mClickHandler;
     private Context mContext;
     boolean mBigwidth;
@@ -29,6 +33,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
     public MoviesAdapter(MovieAdapterOnClickHandler clickHandler,Context context){
         mClickHandler = clickHandler;
         this.mContext = context;
+        movies = new ArrayList<Movie>();
+
     }
     @Override
     public MoviesAdapter.MoviesAdapterViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
@@ -43,16 +49,16 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
 
     @Override
     public void onBindViewHolder(MoviesAdapter.MoviesAdapterViewHolder moviesAdapterViewHolder, int position) {
-        Movie singleMovie = movies[position];
+        Movie singleMovie = movies.get(position);
         moviesAdapterViewHolder.movieTitleView.setText(singleMovie.getTitle());
         moviesAdapterViewHolder.movieRatingView.setText(String.valueOf(singleMovie.getVote_average()));
         if(mBigwidth == false) {
             //moviesAdapterViewHolder.thumbnail.getLayoutParams().height = 450;
-            Picasso.with(mContext).load(NetworkUtils.IMAGE_BASE_URL + NetworkUtils.IMAGE_WIDTH_s + movies[position].getPoster_path()).into(moviesAdapterViewHolder.thumbnail);
+            Picasso.with(mContext).load(NetworkUtils.IMAGE_BASE_URL + NetworkUtils.IMAGE_WIDTH_s + singleMovie.getPoster_path()).into(moviesAdapterViewHolder.thumbnail);
         }
         else{
             //moviesAdapterViewHolder.thumbnail.getLayoutParams().height = 450;
-            Picasso.with(mContext).load(NetworkUtils.IMAGE_BASE_URL + NetworkUtils.IMAGE_WIDTH_s + movies[position].getPoster_path()).into(moviesAdapterViewHolder.thumbnail);
+            Picasso.with(mContext).load(NetworkUtils.IMAGE_BASE_URL + NetworkUtils.IMAGE_WIDTH_s + singleMovie.getPoster_path()).into(moviesAdapterViewHolder.thumbnail);
         }
 
     }
@@ -63,14 +69,23 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
             return 0;
         }
         else{
-            return movies.length;
+            return movies.size();
         }
     }
 
-    public void setMovieData(Movie[] movies,boolean bigwidth){
-        this.movies = movies;
+    public void setMovieData(ArrayList<Movie> movies, boolean bigwidth){
+        if(movies == null){Log.wtf("IS","NULL");}
+        if(this.movies == null){Log.wtf("IS ALSO","NULL ALSO");};
+        this.movies.addAll(movies);
         mBigwidth = bigwidth;
         notifyDataSetChanged();
+    }
+    public ArrayList<Movie> getMovies() {
+        return movies;
+    }
+
+    public void setMovies(ArrayList<Movie> movies) {
+        this.movies = movies;
     }
 
     public class MoviesAdapterViewHolder extends RecyclerView.ViewHolder implements OnClickListener {
@@ -89,7 +104,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
         @Override
         public void onClick(View itemView) {
             int adapterPosition = getAdapterPosition();
-            Movie singleMovie = movies[adapterPosition];
+            Movie singleMovie = movies.get(adapterPosition - 1); //weird bug here (-1) required
             mClickHandler.onClick(singleMovie);
         }
     }

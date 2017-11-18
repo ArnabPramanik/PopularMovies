@@ -27,17 +27,15 @@
             android:layout_gravity="center"
             android:visibility="invisible" />
 
-        <android.support.v7.widget.RecyclerView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/rv_movieData"
-            android:layout_marginLeft="7sp"
-            android:layout_marginRight="5sp"
-            android:scrollbars="vertical"
+<com.jcodecraeer.xrecyclerview.XRecyclerView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/rv_movieData"
+    android:layout_marginLeft="7sp"
+    android:layout_marginRight="5sp"
+    android:scrollbars="vertical">
 
-            >
-        </android.support.v7.widget.RecyclerView>
-
+</com.jcodecraeer.xrecyclerview.XRecyclerView>
     </FrameLayout>
     <android.support.design.widget.NavigationView
         android:id="@+id/navigationView"
