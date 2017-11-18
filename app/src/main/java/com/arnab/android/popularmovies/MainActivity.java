@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggle;
     NavigationView mNavigationView;
+    private static final String NAVIGATION_CHOICE = "navigation_choice";
 
     //Recycler View
     private MoviesAdapter mAdapter;
@@ -88,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             mMovies = (Movie[]) savedInstanceState.getSerializable(MOVIE_DATA_MAIN);
             mAdapter.setMovieData(mMovies);
             layoutManager.onRestoreInstanceState(savedInstanceState.getParcelable(RECYCLER_STATE));
+            navMenuItem = savedInstanceState.getInt(NAVIGATION_CHOICE);
         }
         loadMovieData();
     }
@@ -134,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onSaveInstanceState(outState);
         outState.putSerializable(MOVIE_DATA_MAIN,mMovies);
         outState.putParcelable(RECYCLER_STATE, mRecyclerView.getLayoutManager().onSaveInstanceState());
-
+        outState.putInt(NAVIGATION_CHOICE,navMenuItem);
     }
 
 
@@ -192,7 +194,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onLoadFinished(Loader<String[]> loader, String[] data) {
 
         mLoadingIndicator.setVisibility(View.INVISIBLE);
-
+        if(navMenuItem == R.id.action_popular_movies){
+            getSupportActionBar().setTitle("Popular Movies");
+        }
+        else if (navMenuItem == R.id.action_top_rated_movies){
+            getSupportActionBar().setTitle("Top Rated Movies");
+        }
         if(mMovies != null ) {
             Log.wtf("NULL","NOT NULL");
 
@@ -229,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             mToast = Toast.makeText(this, "Top Rated Movies", Toast.LENGTH_SHORT);
             mToast.show();
-            getSupportActionBar().setTitle("Top Rated Movies");
+
             mMovies = null;
             loadMovieData();
         }
@@ -238,7 +245,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             mToast = Toast.makeText(this,"Popular Movies",Toast.LENGTH_SHORT);
             mToast.show();
-            getSupportActionBar().setTitle("Popular Movies");
             mMovies = null;
             loadMovieData();
 
