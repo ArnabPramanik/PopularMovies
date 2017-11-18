@@ -231,11 +231,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             @Override
             public String[] loadInBackground() {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                
                 URL url = NetworkUtils.buildUrl_popular();
                 if(navMenuItem == R.id.action_popular_movies) {
 
