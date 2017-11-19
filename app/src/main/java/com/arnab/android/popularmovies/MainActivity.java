@@ -61,11 +61,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public final static String RECYCLER_STATE = "recycler_state";
     public final static String MOVIE_DATA_MAIN = "movie_data_main";
     public final static String SAVE_PAGE = "save_page";
+    public final static String SAVE_PAGE_CURRENT = "save_page";
+    public final static String SAVE_PAGE_PREVIOUS = "save_page";
+    public final static String KEEP_LOADING_SAVE = "keep_loading_save";
     private final static int LOADERID = 1;
     private static int currentPage = 1;
     private static int prevPage = 0;
     boolean mBigWidth = false;
-
+    private boolean keeploading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,9 +101,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NetworkUtils.PAGE = 1;
         currentPage = NetworkUtils.PAGE;
         prevPage = currentPage - 1;
-
+        keeploading = true;
         if(savedInstanceState != null) {
-
+            keeploading = savedInstanceState.getBoolean(KEEP_LOADING_SAVE);
             mMovies = (ArrayList<Movie>) savedInstanceState.getSerializable(MOVIE_DATA_MAIN);
             navMenuItem = (int) savedInstanceState.getInt(NAVIGATION_CHOICE);
             if(mMovies != null) {
@@ -109,8 +112,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             NetworkUtils.PAGE = savedInstanceState.getInt(SAVE_PAGE);
 
-            currentPage = NetworkUtils.PAGE;
-            prevPage = currentPage - 1;
+            currentPage = savedInstanceState.getInt(SAVE_PAGE_CURRENT);
+            prevPage = savedInstanceState.getInt(SAVE_PAGE_PREVIOUS);
             layoutManager.onRestoreInstanceState(savedInstanceState.getParcelable(RECYCLER_STATE));
         }
         if(navMenuItem == R.id.action_popular_movies) {
@@ -134,12 +137,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 currentPage = NetworkUtils.PAGE;
                 loadMovieData();
                  mXRecyclerView.loadMoreComplete();
-               // mAdapter.notifyDataSetChanged();
+
 
             }
         });
 
+    }
 
+
+
+
+    public static int getDeviceHeightinDP(Context context){
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        int dpHeight = (int)displayMetrics.heightPixels /(int) displayMetrics.density;
+        return dpHeight;
     }
     public static int calculateNoOfColumns(Context context) {
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
@@ -162,12 +173,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             layoutManager = new GridLayoutManager(this,width );
             mBigWidth = false;
         }
+
     }
 
 
 
     private void loadMovieData(){
-
         LoaderManager loaderManager = getSupportLoaderManager();
         Loader<String> loader = loaderManager.getLoader(LOADERID);
         if(loader == null){
@@ -209,6 +220,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         outState.putParcelable(RECYCLER_STATE, mXRecyclerView.getLayoutManager().onSaveInstanceState());
         outState.putInt(SAVE_PAGE,NetworkUtils.PAGE);
         outState.putInt(NAVIGATION_CHOICE,navMenuItem);
+        outState.putInt(SAVE_PAGE_CURRENT,currentPage);
+        outState.putInt(SAVE_PAGE_PREVIOUS,prevPage);
+        outState.putBoolean(KEEP_LOADING_SAVE,keeploading);
     }
 
 
@@ -220,7 +234,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             protected void onStartLoading() {
 
                 if(mAdapter.movies.size() != 0 && prevPage == currentPage){
-                   // mMovies = new ArrayList<Movie>();
                     deliverResult(new String[]{"A"});
                 }
                 else {
@@ -285,6 +298,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             showErrorMessage();
         }
+       if(keeploading && (NetworkUtils.PAGE == 1 || NetworkUtils.PAGE == 2)){
+           NetworkUtils.PAGE ++;
+           currentPage = NetworkUtils.PAGE;
+           loadMovieData();
+       }
+
+
 
 
     }
