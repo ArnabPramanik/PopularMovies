@@ -10,6 +10,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -17,8 +18,10 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -63,12 +66,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public final static String SAVE_PAGE = "save_page";
     public final static String SAVE_PAGE_CURRENT = "save_page";
     public final static String SAVE_PAGE_PREVIOUS = "save_page";
-    public final static String KEEP_LOADING_SAVE = "keep_loading_save";
     private final static int LOADERID = 1;
     private static int currentPage = 1;
     private static int prevPage = 0;
     boolean mBigWidth = false;
-    private boolean keeploading;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,9 +103,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NetworkUtils.PAGE = 1;
         currentPage = NetworkUtils.PAGE;
         prevPage = currentPage - 1;
-        keeploading = true;
+
         if(savedInstanceState != null) {
-            keeploading = savedInstanceState.getBoolean(KEEP_LOADING_SAVE);
+
             mMovies = (ArrayList<Movie>) savedInstanceState.getSerializable(MOVIE_DATA_MAIN);
             navMenuItem = (int) savedInstanceState.getInt(NAVIGATION_CHOICE);
             if(mMovies != null) {
@@ -145,13 +147,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
-
-
-    public static int getDeviceHeightinDP(Context context){
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        int dpHeight = (int)displayMetrics.heightPixels /(int) displayMetrics.density;
-        return dpHeight;
-    }
     public static int calculateNoOfColumns(Context context) {
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
@@ -222,58 +217,68 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         outState.putInt(NAVIGATION_CHOICE,navMenuItem);
         outState.putInt(SAVE_PAGE_CURRENT,currentPage);
         outState.putInt(SAVE_PAGE_PREVIOUS,prevPage);
-        outState.putBoolean(KEEP_LOADING_SAVE,keeploading);
+
     }
 
 
 
     @Override
     public Loader<String[]> onCreateLoader(int id, Bundle args) {
-        return new AsyncTaskLoader<String[]>(this) {
-            @Override
-            protected void onStartLoading() {
+        switch (id) {
+            case 1:
+                return new AsyncTaskLoader<String[]>(this) {
+                    @Override
+                    protected void onStartLoading() {
 
-                if(mAdapter.movies.size() != 0 && prevPage == currentPage){
-                    deliverResult(new String[]{"A"});
-                }
-                else {
-                    mLoadingIndicator.setVisibility(View.VISIBLE);
-                    //mAdapter.setMovieData(null,mBigWidth);
-                    forceLoad();
-                }
+                        if (mAdapter.movies.size() != 0 && prevPage == currentPage) {
+                            deliverResult(new String[]{"A"});
+                        } else {
+                            mLoadingIndicator.setVisibility(View.VISIBLE);
+                            //mAdapter.setMovieData(null,mBigWidth);
+                            forceLoad();
+                        }
 
-            }
+                    }
 
-            @Override
-            public String[] loadInBackground() {
+                    @Override
+                    public String[] loadInBackground() {
 
-                URL url = NetworkUtils.buildUrl_popular();
-                if(navMenuItem == R.id.action_popular_movies) {
+                        URL url = NetworkUtils.buildUrl_popular();
+                        if (navMenuItem == R.id.action_popular_movies) {
 
-                    url = NetworkUtils.buildUrl_popular();
-                }
-                else if(navMenuItem == R.id.action_top_rated_movies){
+                            url = NetworkUtils.buildUrl_popular();
+                        } else if (navMenuItem == R.id.action_top_rated_movies) {
 
-                    url = NetworkUtils.buildUrl_highestRated();
-                }
-                try {
-                    String jsonStr = NetworkUtils.getResponseFromHttpUrl(url,MainActivity.this);
+                            url = NetworkUtils.buildUrl_highestRated();
+                        }
+                        try {
+                            String jsonStr = NetworkUtils.getResponseFromHttpUrl(url, MainActivity.this);
 
-                    mMovies = (JsonParser.getMovieObjects(jsonStr));
+                            mMovies = (JsonParser.getMovieObjects(jsonStr));
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return  new String [] {"A"};
-            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        return new String[]{"A"};
+                    }
 
-            @Override
-            public void deliverResult(String[] data) {
+                    @Override
+                    public void deliverResult(String[] data) {
 
 
-                super.deliverResult( data);
-            }
-        };
+                        super.deliverResult(data);
+                    }
+                };
+            case 2:
+                return new AsyncTaskLoader<String[]>(this) {
+                    @Override
+                    public String[] loadInBackground() {
+                        return new String[0];
+                    }
+                };
+
+        }
+        return null;
     }
 
     @Override
@@ -298,10 +303,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             showErrorMessage();
         }
-       if(keeploading && (NetworkUtils.PAGE == 1 || NetworkUtils.PAGE == 2)){
+       if(NetworkUtils.PAGE == 1 || NetworkUtils.PAGE == 2){
+
            NetworkUtils.PAGE ++;
            currentPage = NetworkUtils.PAGE;
            loadMovieData();
+
        }
 
 
@@ -373,6 +380,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.search_menu,menu);
+        MenuItem searchItem = menu.findItem(R.id.action_search_bar);
+        SearchView searchView =   (SearchView) MenuItemCompat.getActionView(searchItem);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Log.wtf("STRING",query);
+                return false;
+            }
+        });
+    return super.onCreateOptionsMenu(menu);
     }
 }
 
