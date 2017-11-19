@@ -3,6 +3,7 @@ package com.arnab.android.popularmovies.data;
 import android.util.Log;
 
 import com.arnab.android.popularmovies.model.Movie;
+import com.arnab.android.popularmovies.model.MovieDetails;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,4 +46,36 @@ public class JsonParser {
 
         return null;
     }
+
+    public static MovieDetails getMovieDetailObject(String data){
+        try {
+            JSONObject movieData = new JSONObject(data);
+            MovieDetails movieDetails = new MovieDetails();
+            movieDetails.setVote_count(movieData.getInt("vote_count"));
+            movieDetails.setId(movieData.getInt("id"));
+            movieDetails.setTitle(movieData.getString("title"));
+            movieDetails.setVote_average(movieData.getDouble("vote_average"));
+            movieDetails.setPoster_path(movieData.getString("poster_path"));
+            movieDetails.setRelease_date(movieData.getString("release_date"));
+            movieDetails.setOverview(movieData.getString("overview"));
+            movieDetails.setBackdrop_path(movieData.getString("backdrop_path"));
+            JSONArray genreArray = movieData.getJSONArray("genres");
+            String strArr [] = new String[genreArray.length()];
+            for (int i = 0; i < genreArray.length(); i++) {
+                String genre = genreArray.getJSONObject(i).getString("name");
+                strArr[i] = genre;
+            }
+            movieDetails.setGenre(strArr);
+            movieDetails.setRuntime(movieData.getInt("runtime"));
+            movieDetails.setTagline(movieData.getString("tagline"));
+            return movieDetails;
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch(NullPointerException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

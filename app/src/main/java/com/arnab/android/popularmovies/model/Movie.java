@@ -8,7 +8,7 @@ import java.io.Serializable;
  * Created by arnab on 11/12/17.
  */
 
-public class Movie implements Serializable{
+public class Movie  implements Serializable{
     private int vote_count;
     private int id;
     private boolean video;

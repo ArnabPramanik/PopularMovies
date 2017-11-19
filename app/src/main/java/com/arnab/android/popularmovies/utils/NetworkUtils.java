@@ -51,6 +51,17 @@ public class NetworkUtils {
         }
         return null;
     }
+
+    public static URL buildUrl_details(int movieId){
+        Uri buildUri = Uri.parse(BASE_URL + "/" + movieId + "?api_key=" + API_KEY);
+        try{
+            URL url = new URL(buildUri.toString());
+            return url;
+        } catch(MalformedURLException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
     public static boolean isOnline(Context context) {
         ConnectivityManager cm =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);

@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private GridLayoutManager layoutManager;
 
     //Extra tag
-    public final static String EXTRA_MOVIE_OBJECT = "extra_movie_object";
+    public final static String EXTRA_MOVIE_ID = "extra_movie_id";
     //Saving instance state
     public final static String RECYCLER_STATE = "recycler_state";
     public final static String MOVIE_DATA_MAIN = "movie_data_main";
@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //mRecyclerView.setHasFixedSize(true);
         mAdapter = new MoviesAdapter(this,this);
         mXRecyclerView.setAdapter(mAdapter);
+
 
         mMovies = new ArrayList<Movie>();
         NetworkUtils.PAGE = 1;
@@ -195,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onClick(Movie movie) {
         Intent intent = new Intent(this, DetailView.class);
-        intent.putExtra(EXTRA_MOVIE_OBJECT,movie);
+        intent.putExtra(EXTRA_MOVIE_ID,movie.getId());
         startActivity(intent);
     }
 

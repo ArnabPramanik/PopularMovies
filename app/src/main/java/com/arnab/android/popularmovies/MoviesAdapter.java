@@ -51,7 +51,11 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
     public void onBindViewHolder(MoviesAdapter.MoviesAdapterViewHolder moviesAdapterViewHolder, int position) {
         Movie singleMovie = movies.get(position);
         moviesAdapterViewHolder.movieTitleView.setText(singleMovie.getTitle());
-        moviesAdapterViewHolder.movieRatingView.setText(String.valueOf(singleMovie.getVote_average()));
+        if(singleMovie.getVote_average() == 10.0){
+            moviesAdapterViewHolder.movieRatingView.setText("10");
+        }else {
+            moviesAdapterViewHolder.movieRatingView.setText(String.valueOf(singleMovie.getVote_average()));
+        }
         if(mBigwidth == false) {
             //moviesAdapterViewHolder.thumbnail.getLayoutParams().height = 450;
             Picasso.with(mContext).load(NetworkUtils.IMAGE_BASE_URL + NetworkUtils.IMAGE_WIDTH_s + singleMovie.getPoster_path()).into(moviesAdapterViewHolder.thumbnail);
