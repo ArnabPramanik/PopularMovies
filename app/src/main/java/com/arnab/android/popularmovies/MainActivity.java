@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onLoadMore() {
                 if(mSearch == false) {
-                    Log.wtf(" IN HERE"," IN HERE");
+
                     NetworkUtils.PAGE++;
                     if(NetworkUtils.PAGE <= NetworkUtils.TOTAL_PAGES) {
                         currentPage = NetworkUtils.PAGE;
@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     mXRecyclerView.loadMoreComplete();
                 }
                 else{
-                    Log.wtf(" IN HERE2"," IN HERE2");
+
                     NetworkUtils.SEARCH_PAGE ++;
                     if(NetworkUtils.SEARCH_PAGE <= NetworkUtils.TOTAL_PAGES) {
                         currPageS = NetworkUtils.SEARCH_PAGE;
@@ -288,7 +288,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     @Override
                     public String[] loadInBackground() {
-                        Log.wtf("IN BACK","GROUND THREEAD");
+
                         URL url = NetworkUtils.buildUrl_popular();
                         if (navMenuItem == R.id.action_popular_movies) {
 
@@ -340,7 +340,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     @Override
                     public String[] loadInBackground() {
-                        Log.wtf("IN","BSKGROUND THREASD");
+
                         URL url = NetworkUtils.buildUrl_search(mQueryF);
                         try {
                             String jsonStr = NetworkUtils.getResponseFromHttpUrl(url, MainActivity.this);
@@ -368,7 +368,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onLoadFinished(Loader<String[]> loader, String[] data) {
         switch (loader.getId()) {
             case 1:{
-                Log.wtf("CASE 1","CASE 1");
+
             mLoadingIndicator.setVisibility(View.INVISIBLE);
             if (navMenuItem == R.id.action_popular_movies) {
                 getSupportActionBar().setTitle("Popular Movies");
@@ -406,7 +406,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                         prevPageS = currPageS;
                         showMovieDataView();
-                        Log.wtf("LENGTH OF MOVIES",String.valueOf(mMovies.size()));
+
                         mAdapter.setMovieData(mMovies, mBigWidth);
                     }
                 } else {
@@ -415,7 +415,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 if (NetworkUtils.SEARCH_PAGE == 1 || NetworkUtils.SEARCH_PAGE == 2) {
                     NetworkUtils.SEARCH_PAGE++;
-                    Log.wtf(String.valueOf(NetworkUtils.SEARCH_PAGE),String.valueOf(NetworkUtils.TOTAL_PAGES));
+
                     if(NetworkUtils.SEARCH_PAGE <= NetworkUtils.TOTAL_PAGES) {
                         currPageS = NetworkUtils.SEARCH_PAGE;
                         loadSearchResults();
