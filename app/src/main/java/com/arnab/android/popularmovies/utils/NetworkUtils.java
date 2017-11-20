@@ -24,11 +24,14 @@ public class NetworkUtils {
     static final String BASE_URL = "https://api.themoviedb.org/3/movie";
     static final String POPULAR = "/popular";
     static final String TOP_RATED = "/top_rated";
+    static final String SEARCH_URL = "https://api.themoviedb.org/3/search/movie?api_key=";
     static final String API_KEY = "";
     public static final String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/";
     public static final String IMAGE_WIDTH_s = "w342/";
     public static final String IMAGE_WIDTH_l = "w780/";
     public static int PAGE = 1;
+    public static int SEARCH_PAGE = 1;
+    public static int TOTAL_PAGES = 1;
     public static URL buildUrl_popular(){
 
         Uri buildUri = Uri.parse(BASE_URL + POPULAR + "?api_key=" + API_KEY + "&language=en-US&page=" + String.valueOf(PAGE));
@@ -62,6 +65,20 @@ public class NetworkUtils {
         }
         return null;
     }
+
+    public static URL buildUrl_search(String query){
+        Log.wtf("QUERY",query);
+        Uri buildUri = Uri.parse(SEARCH_URL + API_KEY + "&query=" + query + "&page=" + NetworkUtils.SEARCH_PAGE);
+        try{
+            URL url = new URL(buildUri.toString());
+            return url;
+        } catch(MalformedURLException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
     public static boolean isOnline(Context context) {
         ConnectivityManager cm =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);

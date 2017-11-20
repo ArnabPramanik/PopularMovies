@@ -66,11 +66,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public final static String SAVE_PAGE = "save_page";
     public final static String SAVE_PAGE_CURRENT = "save_page";
     public final static String SAVE_PAGE_PREVIOUS = "save_page";
+
     private final static int LOADERID = 1;
     private static int currentPage = 1;
     private static int prevPage = 0;
     boolean mBigWidth = false;
 
+    //Search
+    private String mQuery;
+    private final static int LOADERSEARCHID = 2;
+    private static int currPageS;
+    private static int prevPageS;
+    private static final String SAVE_PAGE_PREVIOUS_SEARCH = "save_page_previous_search";
+    private static final String SAVE_PAGE_SEARCH = "save_page_search";
+    private static final String SAVE_PAGE_CURRENT_SEARCH = "save_page_current_search";
+    private boolean mSearch;
+    private String mQueryF;
+    private static final String SAVE_SEARCH = "save_search";
+    private static final String SAVE_SEARCH_QUERY = "save_search_query";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +117,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currentPage = NetworkUtils.PAGE;
         prevPage = currentPage - 1;
 
+        NetworkUtils.SEARCH_PAGE = 1;
+        currPageS = NetworkUtils.SEARCH_PAGE;
+        prevPageS = currPageS - 1;
+
+        mSearch = false;
         if(savedInstanceState != null) {
 
             mMovies = (ArrayList<Movie>) savedInstanceState.getSerializable(MOVIE_DATA_MAIN);
@@ -113,9 +131,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                mAdapter.setMovieData(mMovies, mBigWidth);
             }
             NetworkUtils.PAGE = savedInstanceState.getInt(SAVE_PAGE);
-
             currentPage = savedInstanceState.getInt(SAVE_PAGE_CURRENT);
             prevPage = savedInstanceState.getInt(SAVE_PAGE_PREVIOUS);
+
+            NetworkUtils.SEARCH_PAGE = savedInstanceState.getInt(SAVE_PAGE_SEARCH);
+            currPageS = savedInstanceState.getInt(SAVE_PAGE_CURRENT_SEARCH);
+            prevPageS = savedInstanceState.getInt(SAVE_PAGE_PREVIOUS_SEARCH);
+            mSearch = savedInstanceState.getBoolean(SAVE_SEARCH);
+            mQuery = savedInstanceState.getString(SAVE_SEARCH_QUERY);
             layoutManager.onRestoreInstanceState(savedInstanceState.getParcelable(RECYCLER_STATE));
         }
         if(navMenuItem == R.id.action_popular_movies) {
@@ -124,8 +147,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getSupportActionBar().setTitle("Top Rated Movies");
 
         }
+        if(mSearch == true){
+            getSupportActionBar().setTitle("Search Result(s)");
+        }
+        if(mSearch == false) {
             loadMovieData();
-
+        }
         mXRecyclerView.setLoadingListener(new XRecyclerView.LoadingListener(){
 
             @Override
@@ -135,11 +162,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             @Override
             public void onLoadMore() {
-                NetworkUtils.PAGE ++;
-                currentPage = NetworkUtils.PAGE;
-                loadMovieData();
-                 mXRecyclerView.loadMoreComplete();
+                if(mSearch == false) {
+                    Log.wtf(" IN HERE"," IN HERE");
+                    NetworkUtils.PAGE++;
+                    if(NetworkUtils.PAGE <= NetworkUtils.TOTAL_PAGES) {
+                        currentPage = NetworkUtils.PAGE;
+                        loadMovieData();
 
+                    }
+                    mXRecyclerView.loadMoreComplete();
+                }
+                else{
+                    Log.wtf(" IN HERE2"," IN HERE2");
+                    NetworkUtils.SEARCH_PAGE ++;
+                    if(NetworkUtils.SEARCH_PAGE <= NetworkUtils.TOTAL_PAGES) {
+                        currPageS = NetworkUtils.SEARCH_PAGE;
+                        loadSearchResults();
+
+                    }
+                    mXRecyclerView.loadMoreComplete();
+                }
 
             }
         });
@@ -217,7 +259,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         outState.putInt(NAVIGATION_CHOICE,navMenuItem);
         outState.putInt(SAVE_PAGE_CURRENT,currentPage);
         outState.putInt(SAVE_PAGE_PREVIOUS,prevPage);
-
+        outState.putInt(SAVE_PAGE_CURRENT_SEARCH,currPageS);
+        outState.putInt(SAVE_PAGE_PREVIOUS_SEARCH,prevPageS);
+        outState.putInt(SAVE_PAGE_SEARCH,NetworkUtils.SEARCH_PAGE);
+        outState.putString(SAVE_SEARCH_QUERY,mQuery);
+        outState.putBoolean(SAVE_SEARCH,mSearch);
     }
 
 
@@ -230,7 +276,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     @Override
                     protected void onStartLoading() {
 
-                        if (mAdapter.movies.size() != 0 && prevPage == currentPage) {
+                        if (mAdapter.getItemCount() != 0 && prevPage == currentPage) {
                             deliverResult(new String[]{"A"});
                         } else {
                             mLoadingIndicator.setVisibility(View.VISIBLE);
@@ -242,7 +288,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     @Override
                     public String[] loadInBackground() {
-
+                        Log.wtf("IN BACK","GROUND THREEAD");
                         URL url = NetworkUtils.buildUrl_popular();
                         if (navMenuItem == R.id.action_popular_movies) {
 
@@ -272,9 +318,46 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case 2:
                 return new AsyncTaskLoader<String[]>(this) {
                     @Override
+                    protected void onStartLoading() {
+                        if(mAdapter.getItemCount() != 0 && currPageS == prevPageS){
+                            deliverResult(new String[0]);
+
+                        }else {
+                            mLoadingIndicator.setVisibility(View.VISIBLE);
+                            String tempQuery = "";
+                            String[] strArr = mQuery.split(" ");
+                            for (int count = 0; count < strArr.length; count++) {
+                                if (count == strArr.length - 1) {
+                                    tempQuery += strArr[count];
+                                } else {
+                                    tempQuery += strArr[count] + "+";
+                                }
+                            }
+                            mQueryF = tempQuery;
+                            forceLoad();
+                        }
+                    }
+
+                    @Override
                     public String[] loadInBackground() {
+                        Log.wtf("IN","BSKGROUND THREASD");
+                        URL url = NetworkUtils.buildUrl_search(mQueryF);
+                        try {
+                            String jsonStr = NetworkUtils.getResponseFromHttpUrl(url, MainActivity.this);
+
+                            mMovies = (JsonParser.getMovieObjects(jsonStr));
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                         return new String[0];
                     }
+                    @Override
+                    public void deliverResult(String[] data) {
+                        super.deliverResult(data);
+                    }
+
+
                 };
 
         }
@@ -283,34 +366,66 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onLoadFinished(Loader<String[]> loader, String[] data) {
-
-        mLoadingIndicator.setVisibility(View.INVISIBLE);
-        if(navMenuItem == R.id.action_popular_movies) {
-            getSupportActionBar().setTitle("Popular Movies");
-        }else if(navMenuItem == R.id.action_top_rated_movies) {
-            getSupportActionBar().setTitle("Top Rated Movies");
-        }
-        if(mMovies != null ) {
-
-            if(prevPage != currentPage) {
-
-                prevPage = currentPage;
-                showMovieDataView();
-                mAdapter.setMovieData(mMovies, mBigWidth);
+        switch (loader.getId()) {
+            case 1:{
+                Log.wtf("CASE 1","CASE 1");
+            mLoadingIndicator.setVisibility(View.INVISIBLE);
+            if (navMenuItem == R.id.action_popular_movies) {
+                getSupportActionBar().setTitle("Popular Movies");
+            } else if (navMenuItem == R.id.action_top_rated_movies) {
+                getSupportActionBar().setTitle("Top Rated Movies");
             }
+            if (mMovies != null) {
+
+                if (prevPage != currentPage) {
+
+                    prevPage = currentPage;
+                    showMovieDataView();
+                    mAdapter.setMovieData(mMovies, mBigWidth);
+                }
+            } else {
+
+                showErrorMessage();
+            }
+            if (NetworkUtils.PAGE == 1 || NetworkUtils.PAGE == 2) {
+
+                NetworkUtils.PAGE++;
+                if(NetworkUtils.PAGE <= NetworkUtils.TOTAL_PAGES) {
+                    currentPage = NetworkUtils.PAGE;
+                    loadMovieData();
+                }
+            }
+            break;
+            }
+            case 2:{
+                getSupportActionBar().setTitle("Search Result(s)");
+                mLoadingIndicator.setVisibility(View.INVISIBLE);
+                if (mMovies != null) {
+
+                    if (prevPageS != currPageS) {
+
+                        prevPageS = currPageS;
+                        showMovieDataView();
+                        Log.wtf("LENGTH OF MOVIES",String.valueOf(mMovies.size()));
+                        mAdapter.setMovieData(mMovies, mBigWidth);
+                    }
+                } else {
+
+                    showErrorMessage();
+                }
+                if (NetworkUtils.SEARCH_PAGE == 1 || NetworkUtils.SEARCH_PAGE == 2) {
+                    NetworkUtils.SEARCH_PAGE++;
+                    Log.wtf(String.valueOf(NetworkUtils.SEARCH_PAGE),String.valueOf(NetworkUtils.TOTAL_PAGES));
+                    if(NetworkUtils.SEARCH_PAGE <= NetworkUtils.TOTAL_PAGES) {
+                        currPageS = NetworkUtils.SEARCH_PAGE;
+                        loadSearchResults();
+                    }
+
+                }
+                break;
+            }
+
         }
-        else{
-
-            showErrorMessage();
-        }
-       if(NetworkUtils.PAGE == 1 || NetworkUtils.PAGE == 2){
-
-           NetworkUtils.PAGE ++;
-           currentPage = NetworkUtils.PAGE;
-           loadMovieData();
-
-       }
-
 
 
 
@@ -334,7 +449,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         if(itemId == R.id.action_top_rated_movies) {
             navMenuItem = R.id.action_top_rated_movies;
-
+            mSearch = false;
             mToast = Toast.makeText(this, "Top Rated Movies", Toast.LENGTH_SHORT);
             mToast.show();
             mAdapter.movies.clear();
@@ -346,7 +461,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         if(itemId == R.id.action_popular_movies){
             navMenuItem = R.id.action_popular_movies;
-
+            mSearch = false;
             mToast = Toast.makeText(this,"Popular Movies",Toast.LENGTH_SHORT);
             mToast.show();
 
@@ -358,8 +473,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             loadMovieData();
 
         }
-
-        mDrawerLayout.closeDrawer(GravityCompat.START);
+        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        }
         return true;
     }
 
@@ -391,16 +507,42 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
             @Override
             public boolean onQueryTextChange(String newText) {
+                if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    mDrawerLayout.closeDrawer(GravityCompat.START);
+                }
                 return false;
             }
 
             @Override
             public boolean onQueryTextSubmit(String query) {
-                Log.wtf("STRING",query);
+                mQuery = query;
+                mAdapter.clean();
+                mSearch = true;
+                NetworkUtils.SEARCH_PAGE = 1;
+                currPageS = NetworkUtils.SEARCH_PAGE;
+                prevPageS = currPageS - 1;
+                if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    mDrawerLayout.closeDrawer(GravityCompat.START);
+                }
+                loadSearchResults();
+
                 return false;
             }
         });
     return super.onCreateOptionsMenu(menu);
+    }
+
+    private void loadSearchResults(){
+        LoaderManager loaderManager = getSupportLoaderManager();
+        Loader<String> loader = loaderManager.getLoader(LOADERSEARCHID);
+        if(loader == null){
+            loaderManager.initLoader(LOADERSEARCHID,null,this);
+
+        }
+        else{
+            loaderManager.restartLoader(LOADERSEARCHID,null,this);
+        }
+
     }
 }
 

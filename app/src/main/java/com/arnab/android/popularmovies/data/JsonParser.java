@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.arnab.android.popularmovies.model.Movie;
 import com.arnab.android.popularmovies.model.MovieDetails;
+import com.arnab.android.popularmovies.utils.NetworkUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,6 +21,7 @@ public class JsonParser {
     public static ArrayList<Movie> getMovieObjects(String data){
         try {
             JSONObject allData = new JSONObject(data);
+            NetworkUtils.TOTAL_PAGES = allData.getInt("total_pages");
             //Log.v("ALL DATA", allData.toString());
             JSONArray popularMovies = allData.getJSONArray("results");
             ArrayList<Movie> movies= new ArrayList<Movie>();

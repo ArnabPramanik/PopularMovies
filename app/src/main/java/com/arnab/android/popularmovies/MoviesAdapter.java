@@ -84,6 +84,10 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
         mBigwidth = bigwidth;
         notifyDataSetChanged();
     }
+    public  void clean(){
+        movies = new ArrayList<Movie>();
+        notifyDataSetChanged();
+    }
     public ArrayList<Movie> getMovies() {
         return movies;
     }
