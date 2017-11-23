@@ -1,8 +1,7 @@
 package com.arnab.android.popularmovies;
 
 import android.content.Intent;
-import android.media.Image;
-import android.provider.ContactsContract;
+
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -13,23 +12,21 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.Layout;
-import android.util.Log;
+
 import android.view.View;
-import android.widget.FrameLayout;
+
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.arnab.android.popularmovies.data.JsonParser;
-import com.arnab.android.popularmovies.model.Movie;
+
 import com.arnab.android.popularmovies.model.MovieDetails;
 import com.arnab.android.popularmovies.utils.NetworkUtils;
 import com.borjabravo.readmoretextview.ReadMoreTextView;
 import com.squareup.picasso.Picasso;
 
-import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.net.URL;
@@ -87,7 +84,7 @@ public class DetailView extends AppCompatActivity implements  LoaderManager.Load
         mGenresRecyclerView.setLayoutManager(layoutManager);
         mAdapter = new GenreItemAdapter();
         mGenresRecyclerView.setAdapter(mAdapter);
-        // getSupportActionBar().setTitle("Details");
+
         //Get intent and populate fields
         Intent intentThatStartedThisActivity = getIntent();
         movieId = -1;

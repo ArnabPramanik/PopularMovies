@@ -11,7 +11,7 @@ import android.widget.TextView;
 import android.view.View.OnClickListener;
 import com.arnab.android.popularmovies.model.Movie;
 import com.arnab.android.popularmovies.utils.NetworkUtils;
-import com.jcodecraeer.xrecyclerview.XRecyclerView;
+
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;

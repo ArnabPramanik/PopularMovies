@@ -1,7 +1,5 @@
 package com.arnab.android.popularmovies.data;
 
-import android.util.Log;
-
 import com.arnab.android.popularmovies.model.Movie;
 import com.arnab.android.popularmovies.model.MovieDetails;
 import com.arnab.android.popularmovies.utils.NetworkUtils;
@@ -22,7 +20,6 @@ public class JsonParser {
         try {
             JSONObject allData = new JSONObject(data);
             NetworkUtils.TOTAL_PAGES = allData.getInt("total_pages");
-            //Log.v("ALL DATA", allData.toString());
             JSONArray popularMovies = allData.getJSONArray("results");
             ArrayList<Movie> movies= new ArrayList<Movie>();
             for(int count = 0; count < popularMovies.length(); count++){
@@ -39,7 +36,6 @@ public class JsonParser {
                 movies.add(movie);
             }
             return movies;
-            //Log.v("POPULAR", popular_movies.toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }catch(NullPointerException e){

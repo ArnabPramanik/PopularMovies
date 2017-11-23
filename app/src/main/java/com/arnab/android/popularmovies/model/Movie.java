@@ -1,7 +1,5 @@
 package com.arnab.android.popularmovies.model;
 
-import android.os.Parcelable;
-
 import java.io.Serializable;
 
 /**
