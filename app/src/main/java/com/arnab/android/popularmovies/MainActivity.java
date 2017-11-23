@@ -70,7 +70,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private final static int LOADERID = 1;
     private static int currentPage = 1;
     private static int prevPage = 0;
-    boolean mBigWidth = false;
 
     //Search
     private String mQuery;
@@ -125,10 +124,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(savedInstanceState != null) {
 
             mMovies = (ArrayList<Movie>) savedInstanceState.getSerializable(MOVIE_DATA_MAIN);
-            navMenuItem = (int) savedInstanceState.getInt(NAVIGATION_CHOICE);
+            navMenuItem = savedInstanceState.getInt(NAVIGATION_CHOICE);
             if(mMovies != null) {
 
-               mAdapter.setMovieData(mMovies, mBigWidth);
+               mAdapter.setMovieData(mMovies);
             }
             NetworkUtils.PAGE = savedInstanceState.getInt(SAVE_PAGE);
             currentPage = savedInstanceState.getInt(SAVE_PAGE_CURRENT);
@@ -199,18 +198,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void setLayout(){
 
-        if(getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE){
-
-            int width = calculateNoOfColumns(this);
-            layoutManager = new GridLayoutManager(this,width);
-            mBigWidth = true;
-
-        }else{
-            int width = calculateNoOfColumns(this);
-            layoutManager = new GridLayoutManager(this,width );
-            mBigWidth = false;
-        }
-
+        int width = calculateNoOfColumns(this);
+        layoutManager = new GridLayoutManager(this,width);
     }
 
 
@@ -226,8 +215,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             loaderManager.restartLoader(LOADERID,null,this);
         }
 
-        //getSupportLoaderManager().initLoader(LOADERID, null, this);
     }
+
     private void showMovieDataView() {
 
         mErrorMessageView.setVisibility(View.INVISIBLE);
@@ -275,12 +264,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return new AsyncTaskLoader<String[]>(this) {
                     @Override
                     protected void onStartLoading() {
-
+                        if (navMenuItem == R.id.action_popular_movies) {
+                            getSupportActionBar().setTitle("Popular Movies");
+                        } else if (navMenuItem == R.id.action_top_rated_movies) {
+                            getSupportActionBar().setTitle("Top Rated Movies");
+                        }
                         if (mAdapter.getItemCount() != 0 && prevPage == currentPage) {
                             deliverResult(new String[]{"A"});
                         } else {
                             mLoadingIndicator.setVisibility(View.VISIBLE);
-                            //mAdapter.setMovieData(null,mBigWidth);
+
                             forceLoad();
                         }
 
@@ -319,6 +312,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return new AsyncTaskLoader<String[]>(this) {
                     @Override
                     protected void onStartLoading() {
+                        getSupportActionBar().setTitle("Search Result(s)");
                         if(mAdapter.getItemCount() != 0 && currPageS == prevPageS){
                             deliverResult(new String[0]);
 
@@ -370,23 +364,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case 1:{
 
             mLoadingIndicator.setVisibility(View.INVISIBLE);
-            if (navMenuItem == R.id.action_popular_movies) {
-                getSupportActionBar().setTitle("Popular Movies");
-            } else if (navMenuItem == R.id.action_top_rated_movies) {
-                getSupportActionBar().setTitle("Top Rated Movies");
-            }
-            if (mMovies != null) {
+
+            if (mMovies != null && mMovies.size() != 0) {
 
                 if (prevPage != currentPage) {
 
                     prevPage = currentPage;
                     showMovieDataView();
-                    mAdapter.setMovieData(mMovies, mBigWidth);
+                    mAdapter.setMovieData(mMovies);
                 }
             } else {
 
                 showErrorMessage();
             }
+            /*
+            There is bug in xRecyclerView (the infinite scroll recyclerview)
+            library that is being used. If movies < screen height then it doesn't work.
+            This is a problem in tablets. This is why page 2 and 3 are being loaded.
+             */
             if (NetworkUtils.PAGE == 1 || NetworkUtils.PAGE == 2) {
 
                 NetworkUtils.PAGE++;
@@ -398,21 +393,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             break;
             }
             case 2:{
-                getSupportActionBar().setTitle("Search Result(s)");
+
                 mLoadingIndicator.setVisibility(View.INVISIBLE);
-                if (mMovies != null) {
+                if (mMovies != null && mMovies.size()!= 0) {
 
                     if (prevPageS != currPageS) {
 
                         prevPageS = currPageS;
                         showMovieDataView();
 
-                        mAdapter.setMovieData(mMovies, mBigWidth);
+                        mAdapter.setMovieData(mMovies);
                     }
                 } else {
 
                     showErrorMessage();
                 }
+                 /*
+            There is bug in xRecyclerView (the infinite scroll recyclerview)
+            library that is being used. If movies < screen height then it doesn't work.
+            This is a problem in tablets. This is why page 2 and 3 are being loaded.
+             */
                 if (NetworkUtils.SEARCH_PAGE == 1 || NetworkUtils.SEARCH_PAGE == 2) {
                     NetworkUtils.SEARCH_PAGE++;
 
@@ -448,25 +448,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             mToast.cancel();
         }
         if(itemId == R.id.action_top_rated_movies) {
+
             navMenuItem = R.id.action_top_rated_movies;
             mSearch = false;
             mToast = Toast.makeText(this, "Top Rated Movies", Toast.LENGTH_SHORT);
             mToast.show();
-            mAdapter.movies.clear();
-            mAdapter.notifyDataSetChanged();
+            mAdapter.clean();
             NetworkUtils.PAGE = 1;
             currentPage = 1;
             prevPage = 0;
             loadMovieData();
         }
         if(itemId == R.id.action_popular_movies){
+
             navMenuItem = R.id.action_popular_movies;
             mSearch = false;
             mToast = Toast.makeText(this,"Popular Movies",Toast.LENGTH_SHORT);
             mToast.show();
 
-            mAdapter.movies.clear();
-            mAdapter.notifyDataSetChanged();
+            mAdapter.clean();
             NetworkUtils.PAGE = 1;
             currentPage = 1;
             prevPage = 0;

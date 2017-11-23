@@ -22,10 +22,10 @@ import java.util.ArrayList;
 
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdapterViewHolder> {
 
-    public ArrayList<Movie> movies;
+    private ArrayList<Movie> movies;
     private final MovieAdapterOnClickHandler mClickHandler;
     private Context mContext;
-    boolean mBigwidth;
+
     public interface MovieAdapterOnClickHandler {
         void onClick(Movie movie);
     }
@@ -56,14 +56,11 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
         }else {
             moviesAdapterViewHolder.movieRatingView.setText(String.valueOf(singleMovie.getVote_average()));
         }
-        if(mBigwidth == false) {
-            //moviesAdapterViewHolder.thumbnail.getLayoutParams().height = 450;
-            Picasso.with(mContext).load(NetworkUtils.IMAGE_BASE_URL + NetworkUtils.IMAGE_WIDTH_s + singleMovie.getPoster_path()).into(moviesAdapterViewHolder.thumbnail);
-        }
-        else{
-            //moviesAdapterViewHolder.thumbnail.getLayoutParams().height = 450;
-            Picasso.with(mContext).load(NetworkUtils.IMAGE_BASE_URL + NetworkUtils.IMAGE_WIDTH_s + singleMovie.getPoster_path()).into(moviesAdapterViewHolder.thumbnail);
-        }
+
+        //moviesAdapterViewHolder.thumbnail.getLayoutParams().height = 450;
+        Picasso.with(mContext).load(NetworkUtils.IMAGE_BASE_URL + NetworkUtils.IMAGE_WIDTH_s + singleMovie.getPoster_path()).placeholder(R.drawable.ic_action_name).into(moviesAdapterViewHolder.thumbnail);
+
+
 
     }
 
@@ -77,24 +74,21 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
         }
     }
 
-    public void setMovieData(ArrayList<Movie> movies, boolean bigwidth){
+    public void setMovieData(ArrayList<Movie> movies){
         if(movies == null){Log.wtf("IS","NULL");}
         if(this.movies == null){Log.wtf("IS ALSO","NULL ALSO");};
         this.movies.addAll(movies);
-        mBigwidth = bigwidth;
         notifyDataSetChanged();
     }
     public  void clean(){
-        movies = new ArrayList<Movie>();
+        movies.clear();
         notifyDataSetChanged();
     }
     public ArrayList<Movie> getMovies() {
         return movies;
     }
 
-    public void setMovies(ArrayList<Movie> movies) {
-        this.movies = movies;
-    }
+
 
     public class MoviesAdapterViewHolder extends RecyclerView.ViewHolder implements OnClickListener {
         public final TextView movieTitleView;

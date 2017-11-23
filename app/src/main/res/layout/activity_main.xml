@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context="com.arnab.android.popularmovies.MainActivity"
     android:id="@+id/drawerLayout"
-    android:background="#C49696">
+    android:background="@color/colorBackground">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -31,7 +31,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/rv_movieData"
-    android:layout_marginLeft="7sp"
+    android:layout_marginLeft="5sp"
     android:layout_marginRight="5sp"
     android:scrollbars="vertical">
 

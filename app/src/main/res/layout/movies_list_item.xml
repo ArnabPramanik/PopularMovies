@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     card_view:cardCornerRadius="5dp"
     card_view:cardUseCompatPadding="true"
-    card_view:cardBackgroundColor="#C43A3A"
+    card_view:cardBackgroundColor="@color/colorCard"
     card_view:cardElevation="1dp"
     >
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -40,7 +40,7 @@
     <View
         android:layout_width="fill_parent"
         android:layout_height="1sp"
-        android:background="#C49696"
+        android:background="@color/colorBackground"
         />
     <RelativeLayout
         android:layout_width="match_parent"

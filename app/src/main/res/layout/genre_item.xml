@@ -5,14 +5,14 @@
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     card_view:cardCornerRadius="5dp"
     card_view:cardUseCompatPadding="true"
-    card_view:cardBackgroundColor="#C43A3A"
+    card_view:cardBackgroundColor="@color/colorCard"
     card_view:cardElevation="5dp">
     <TextView
         android:padding="5dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/tv_genre_detail"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/colorTextBlack"
         android:fontFamily="serif-monospace"
         android:textSize="15sp"/>
 

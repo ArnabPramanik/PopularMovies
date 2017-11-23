@@ -67,7 +67,6 @@ public class NetworkUtils {
     }
 
     public static URL buildUrl_search(String query){
-        Log.wtf("QUERY",query);
         Uri buildUri = Uri.parse(SEARCH_URL + API_KEY + "&query=" + query + "&page=" + NetworkUtils.SEARCH_PAGE);
         try{
             URL url = new URL(buildUri.toString());

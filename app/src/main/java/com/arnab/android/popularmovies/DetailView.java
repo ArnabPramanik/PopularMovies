@@ -105,11 +105,12 @@ public class DetailView extends AppCompatActivity implements  LoaderManager.Load
         ActionBar ab = getSupportActionBar();
 
         // Enable the Up button
-        ab.setDisplayHomeAsUpEnabled(true);
-
+        if(ab != null) {
+            ab.setDisplayHomeAsUpEnabled(true);
+        }
     }
 
-    public void loadMovieDetails(){
+    private void loadMovieDetails(){
         LoaderManager loaderManager = getSupportLoaderManager();
         Loader<String> loader = loaderManager.getLoader(LOADERID);
         if(loader == null){
@@ -205,8 +206,8 @@ public class DetailView extends AppCompatActivity implements  LoaderManager.Load
         mVoteCount.setText(String.valueOf(mMovieDetails.getVote_count()));
         mTagline.setText(mMovieDetails.getTagline());
         mRuntime.setText(String.valueOf(mMovieDetails.getRuntime()) + "min");
-        Picasso.with(this).load(NetworkUtils.IMAGE_BASE_URL + NetworkUtils.IMAGE_WIDTH_s + mMovieDetails.getPoster_path()).into(mPoster);
-        Picasso.with(this).load(NetworkUtils.IMAGE_BASE_URL + NetworkUtils.IMAGE_WIDTH_l + mMovieDetails.getBackdrop_path()).into(mBackDrop);
+        Picasso.with(this).load(NetworkUtils.IMAGE_BASE_URL + NetworkUtils.IMAGE_WIDTH_s + mMovieDetails.getPoster_path()).placeholder(R.drawable.ic_action_name).into(mPoster);
+        Picasso.with(this).load(NetworkUtils.IMAGE_BASE_URL + NetworkUtils.IMAGE_WIDTH_l + mMovieDetails.getBackdrop_path()).placeholder(R.drawable.ic_action_name).into(mBackDrop);
     }
 
 }
