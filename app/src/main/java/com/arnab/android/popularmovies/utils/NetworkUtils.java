@@ -5,6 +5,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 
+import com.arnab.android.popularmovies.BuildConfig;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -24,13 +26,16 @@ public class NetworkUtils {
     static final String POPULAR = "/popular";
     static final String TOP_RATED = "/top_rated";
     static final String SEARCH_URL = "https://api.themoviedb.org/3/search/movie?api_key=";
-    static final String API_KEY = "";
+    static final String REVIEWS = "/reviews";
+    static final String API_KEY = BuildConfig.API_KEY;;
     public static final String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/";
     public static final String IMAGE_WIDTH_s = "w342/";
     public static final String IMAGE_WIDTH_l = "w780/";
     public static int PAGE = 1;
     public static int SEARCH_PAGE = 1;
     public static int TOTAL_PAGES = 1;
+    public static int REVIEW_PAGE = 1;
+    public static int TOTAL_REVIEW_PAGES = 1;
     public static URL buildUrl_popular(){
 
         Uri buildUri = Uri.parse(BASE_URL + POPULAR + "?api_key=" + API_KEY + "&language=en-US&page=" + String.valueOf(PAGE));
@@ -67,6 +72,17 @@ public class NetworkUtils {
 
     public static URL buildUrl_search(String query){
         Uri buildUri = Uri.parse(SEARCH_URL + API_KEY + "&query=" + query + "&page=" + NetworkUtils.SEARCH_PAGE);
+        try{
+            URL url = new URL(buildUri.toString());
+            return url;
+        } catch(MalformedURLException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static URL buildUrlReviews(int movieId){
+        Uri buildUri = Uri.parse(BASE_URL+ "/" + movieId + "/reviews?api_key=" + API_KEY + "&language=en-US&page=" + NetworkUtils.REVIEW_PAGE);
         try{
             URL url = new URL(buildUri.toString());
             return url;

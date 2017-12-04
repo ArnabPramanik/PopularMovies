@@ -1,7 +1,11 @@
 package com.arnab.android.popularmovies.data;
 
+import android.util.Log;
+
+import com.arnab.android.popularmovies.DetailView;
 import com.arnab.android.popularmovies.model.Movie;
 import com.arnab.android.popularmovies.model.MovieDetails;
+import com.arnab.android.popularmovies.model.MovieReview;
 import com.arnab.android.popularmovies.utils.NetworkUtils;
 
 import org.json.JSONArray;
@@ -71,6 +75,34 @@ public class JsonParser {
         } catch (JSONException e) {
             e.printStackTrace();
         } catch(NullPointerException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static ArrayList<MovieReview> getMovieReviewArrayList(String data){
+        try {
+            JSONObject allData = new JSONObject(data);
+            NetworkUtils.TOTAL_REVIEW_PAGES = allData.getInt("total_pages");
+            if(NetworkUtils.TOTAL_REVIEW_PAGES > 1){
+                DetailView.showButton = true;
+            }
+            else{
+                DetailView.showButton = false;
+            }
+            JSONArray movieReviews = allData.getJSONArray("results");
+            ArrayList<MovieReview> listMovieReviews = new ArrayList<MovieReview>();
+            for(int count = 0; count < movieReviews.length(); count++){
+                JSONObject jo = movieReviews.getJSONObject(count);
+                MovieReview movieReview = new MovieReview();
+                movieReview.setAuthor(jo.getString("author"));
+                movieReview.setContent(jo.getString("content"));
+                listMovieReviews.add(movieReview);
+            }
+
+            return listMovieReviews;
+
+        } catch (JSONException e) {
             e.printStackTrace();
         }
         return null;

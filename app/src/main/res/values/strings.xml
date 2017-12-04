@@ -5,5 +5,6 @@
     <string name="top_rated_movies">Top Rated Movies</string>
     <string name="open">Open</string>
     <string name="close">Close</string>
-
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
 </resources>
