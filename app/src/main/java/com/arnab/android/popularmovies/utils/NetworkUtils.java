@@ -36,6 +36,10 @@ public class NetworkUtils {
     public static int TOTAL_PAGES = 1;
     public static int REVIEW_PAGE = 1;
     public static int TOTAL_REVIEW_PAGES = 1;
+    public static String YOUTUBE_URL = "http://www.youtube.com/watch?v=";
+    public static String YOUTUBE_THUMB = "http://img.youtube.com/vi/";
+    public static String YOUTUBE_HIGH_QUALITY = "/hqdefault.jpg";
+
     public static URL buildUrl_popular(){
 
         Uri buildUri = Uri.parse(BASE_URL + POPULAR + "?api_key=" + API_KEY + "&language=en-US&page=" + String.valueOf(PAGE));
@@ -83,6 +87,17 @@ public class NetworkUtils {
 
     public static URL buildUrlReviews(int movieId){
         Uri buildUri = Uri.parse(BASE_URL+ "/" + movieId + "/reviews?api_key=" + API_KEY + "&language=en-US&page=" + NetworkUtils.REVIEW_PAGE);
+        try{
+            URL url = new URL(buildUri.toString());
+            return url;
+        } catch(MalformedURLException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static URL buildUrlVideos(int movieId){
+        Uri buildUri = Uri.parse(BASE_URL+ "/" + movieId + "/videos?api_key=" + API_KEY + "&language=en-US");
         try{
             URL url = new URL(buildUri.toString());
             return url;

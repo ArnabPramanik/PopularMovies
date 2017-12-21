@@ -3,6 +3,7 @@ package com.arnab.android.popularmovies;
 import android.content.Context;
 import android.content.Intent;
 
+import android.net.Uri;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -25,18 +26,21 @@ import android.widget.TextView;
 
 import com.arnab.android.popularmovies.data.JsonParser;
 
+import com.arnab.android.popularmovies.model.Movie;
 import com.arnab.android.popularmovies.model.MovieDetails;
 import com.arnab.android.popularmovies.model.MovieReview;
+import com.arnab.android.popularmovies.model.MovieTrailer;
 import com.arnab.android.popularmovies.utils.NetworkUtils;
 import com.borjabravo.readmoretextview.ReadMoreTextView;
 import com.squareup.picasso.Picasso;
 
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class DetailView extends AppCompatActivity implements  LoaderManager.LoaderCallbacks<String[]>{
+public class DetailView extends AppCompatActivity implements  LoaderManager.LoaderCallbacks<String[]>, MovieTrailerAdapter.TrailerAdapterOnClickHandler{
     private ImageView mPoster;
     private TextView mTitle;
     private TextView mRating;
@@ -69,6 +73,10 @@ public class DetailView extends AppCompatActivity implements  LoaderManager.Load
     private static String SAVE_REVIEW_PAGE = "save_review_page";
     private TextView mErrorMessageReview;
     private ProgressBar mLoadingIndicatorReview;
+
+    //Videos
+    private ArrayList<MovieTrailer> mMovieTrailers;
+    private MovieTrailerAdapter mMovieTrailerAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,6 +116,13 @@ public class DetailView extends AppCompatActivity implements  LoaderManager.Load
         mReviewsRecyclerView.setLayoutManager(reviewsLayoutManager);
         mMovieReviewAdapter = new MovieReviewAdapter(DetailView.this);
         mReviewsRecyclerView.setAdapter(mMovieReviewAdapter);
+
+        //Trailer recyclerview
+        RecyclerView trailerRecyclerView = (RecyclerView) findViewById(R.id.rv_trailers_detail);
+        LinearLayoutManager trailerLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,false);
+        trailerRecyclerView.setLayoutManager(trailerLayoutManager);
+        mMovieTrailerAdapter = new MovieTrailerAdapter(DetailView.this,this);
+        trailerRecyclerView.setAdapter(mMovieTrailerAdapter);
 
         mLoadingIndicatorReview = (ProgressBar) findViewById(R.id.pb_loading_indicator_review);
         mErrorMessageReview = (TextView)findViewById(R.id.tv_error_message_review);
@@ -201,7 +216,7 @@ public class DetailView extends AppCompatActivity implements  LoaderManager.Load
                 return new AsyncTaskLoader<String[]>(this) {
                 @Override
                 protected void onStartLoading() {
-                    if (mMovieDetails != null) {
+                    if (mMovieDetails != null && mMovieTrailers != null && mMovieTrailers.size() != 0) {
                         deliverResult(new String[0]);
                     } else {
                         mLoadingIndicator.setVisibility(View.VISIBLE);
@@ -214,11 +229,12 @@ public class DetailView extends AppCompatActivity implements  LoaderManager.Load
                 public String[] loadInBackground() {
 
                     URL urlDetails = NetworkUtils.buildUrl_details(movieId);
+                    URL urlVideos = NetworkUtils.buildUrlVideos(movieId);
                     try {
                         String jsonStr = NetworkUtils.getResponseFromHttpUrl(urlDetails, DetailView.this);
-
-
                         mMovieDetails = (JsonParser.getMovieDetailObject(jsonStr));
+                        String jsonStrVideos = NetworkUtils.getResponseFromHttpUrl(urlVideos,DetailView.this);
+                        mMovieTrailers = JsonParser.getMovieTrailer(jsonStrVideos);
 
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -274,9 +290,10 @@ public class DetailView extends AppCompatActivity implements  LoaderManager.Load
         switch(loader.getId()) {
             case 3:
                 mLoadingIndicator.setVisibility(View.INVISIBLE);
-            if (mMovieDetails != null) {
+            if (mMovieDetails != null && mMovieTrailers != null) {
                 showMovieDataView();
                 setMovieData();
+                mMovieTrailerAdapter.setmMovieTrailers(mMovieTrailers);
             } else {
                 showErrorMessage();
             }
@@ -295,6 +312,7 @@ public class DetailView extends AppCompatActivity implements  LoaderManager.Load
         }
     }
 
+    
 
     @Override
     public void onLoaderReset(Loader<String[]> loader) {
@@ -317,4 +335,11 @@ public class DetailView extends AppCompatActivity implements  LoaderManager.Load
     }
 
 
+    @Override
+    public void onClick(String url) {
+        //CHECK IF BROWSER IS INSTALLED*****************
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(url));
+        startActivity(i);
+    }
 }

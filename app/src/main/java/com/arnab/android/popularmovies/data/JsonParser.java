@@ -6,6 +6,7 @@ import com.arnab.android.popularmovies.DetailView;
 import com.arnab.android.popularmovies.model.Movie;
 import com.arnab.android.popularmovies.model.MovieDetails;
 import com.arnab.android.popularmovies.model.MovieReview;
+import com.arnab.android.popularmovies.model.MovieTrailer;
 import com.arnab.android.popularmovies.utils.NetworkUtils;
 
 import org.json.JSONArray;
@@ -107,5 +108,27 @@ public class JsonParser {
         }
         return null;
     }
+
+
+    public static ArrayList<MovieTrailer> getMovieTrailer(String data){
+        try{
+
+            JSONObject allJo = new JSONObject(data);
+            JSONArray allData = allJo.getJSONArray("results");
+            ArrayList<MovieTrailer> movieTrailers = new ArrayList<MovieTrailer>();
+            for(int counter = 0; counter < allData.length(); counter++){
+                MovieTrailer movieTrailer = new MovieTrailer();
+                JSONObject jo = allData.getJSONObject(counter);
+                movieTrailer.setKey(jo.getString("key"));
+                movieTrailers.add(movieTrailer);
+            }
+            return movieTrailers;
+        } catch(JSONException e){
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
 
 }
