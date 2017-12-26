@@ -45,12 +45,15 @@
     </android.support.design.widget.AppBarLayout>
 
     <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_favorite_detail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:src="@drawable/ic_happy"
+        android:visibility="invisible"
         app:layout_anchor="@+id/nestedScrollView"
-        app:layout_anchorGravity="bottom|right" />
+        app:layout_anchorGravity="bottom|right"
+        android:clickable="true"
+        />
 
     <!-- Your Scrollable View : Can be Nested Scroll View or Recycler View-->
     <android.support.v4.widget.NestedScrollView
@@ -302,7 +305,7 @@
                             android:id="@+id/tv_error_message_review"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Something went wrong"
+                            android:text="No Reviews"
                             android:textColor="@color/colorTextWhite"
                             android:textSize="17sp"
                             android:fontFamily="serif-monospace"

@@ -1,10 +1,12 @@
 package com.arnab.android.popularmovies.model;
 
+import java.io.Serializable;
+
 /**
  * Created by arnab on 11/25/17.
  */
 
-public class MovieReview {
+public class MovieReview implements Serializable {
 
     String author;
     String content;

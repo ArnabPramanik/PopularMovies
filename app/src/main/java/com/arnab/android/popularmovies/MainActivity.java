@@ -3,10 +3,13 @@ package com.arnab.android.popularmovies;
 import android.content.Context;
 import android.content.Intent;
 
+import android.database.Cursor;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
@@ -19,6 +22,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.SearchView;
 import android.util.DisplayMetrics;
 
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,6 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.arnab.android.popularmovies.data.JsonParser;
+import com.arnab.android.popularmovies.data.MoviesContract;
 import com.arnab.android.popularmovies.model.Movie;
 import com.arnab.android.popularmovies.utils.NetworkUtils;
 import com.jcodecraeer.xrecyclerview.XRecyclerView;
@@ -37,7 +42,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,MoviesAdapter.MovieAdapterOnClickHandler,LoaderManager.LoaderCallbacks<String[]> {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,MoviesAdapter.MovieAdapterOnClickHandler,LoaderManager.LoaderCallbacks {
 
     private TextView mErrorMessageView;
     private ProgressBar mLoadingIndicator;
@@ -80,6 +85,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final String SAVE_SEARCH = "save_search";
     private static final String SAVE_SEARCH_QUERY = "save_search_query";
 
+
+    //FAVORITE
+    private final static int LOADERIDFAVORITE = 5;
+    public static final String[] PROJECTION = {
+            MoviesContract.MoviesEntry.MOVIE_ID,
+            MoviesContract.MoviesEntry.MOVIE_TITLE,
+            MoviesContract.MoviesEntry.RATING,
+            MoviesContract.MoviesEntry.IMAGE_URL
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //mRecyclerView.setHasFixedSize(true);
         mAdapter = new MoviesAdapter(this,this);
         mXRecyclerView.setAdapter(mAdapter);
+
 
 
         mMovies = new ArrayList<Movie>();
@@ -136,17 +151,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             mQuery = savedInstanceState.getString(SAVE_SEARCH_QUERY);
             layoutManager.onRestoreInstanceState(savedInstanceState.getParcelable(RECYCLER_STATE));
         }
+
         if(navMenuItem == R.id.action_popular_movies) {
             getSupportActionBar().setTitle("Popular Movies");
         }else if(navMenuItem == R.id.action_top_rated_movies) {
             getSupportActionBar().setTitle("Top Rated Movies");
 
+        } else if (navMenuItem == R.id.action_favorite_movies){
+            getSupportActionBar().setTitle("Favorite");
         }
         if(mSearch == true){
             getSupportActionBar().setTitle("Search Result(s)");
         }
         if(mSearch == false) {
-            loadMovieData();
+            loadMovieData(LOADERID);
         }
         mXRecyclerView.setLoadingListener(new XRecyclerView.LoadingListener(){
 
@@ -162,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     NetworkUtils.PAGE++;
                     if(NetworkUtils.PAGE <= NetworkUtils.TOTAL_PAGES) {
                         currentPage = NetworkUtils.PAGE;
-                        loadMovieData();
+                        loadMovieData(LOADERID);
 
                     }
                     mXRecyclerView.loadMoreComplete();
@@ -200,15 +218,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
 
-    private void loadMovieData(){
-        LoaderManager loaderManager = getSupportLoaderManager();
-        Loader<String> loader = loaderManager.getLoader(LOADERID);
+    private void loadMovieData(int loaderId){
+        LoaderManager loaderManager = this.getSupportLoaderManager();
+        Loader<String> loader = loaderManager.getLoader(loaderId);
         if(loader == null){
-            loaderManager.initLoader(LOADERID,null,this);
+            loaderManager.initLoader(loaderId,null,this);
 
         }
         else{
-            loaderManager.restartLoader(LOADERID,null,this);
+            loaderManager.restartLoader(loaderId,null,this);
         }
 
     }
@@ -254,25 +272,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     @Override
-    public Loader<String[]> onCreateLoader(int id, Bundle args) {
+    public Loader onCreateLoader(int id, Bundle args) {
         switch (id) {
-            case 1:
+            case LOADERID:
                 return new AsyncTaskLoader<String[]>(this) {
                     @Override
                     protected void onStartLoading() {
-                        if (navMenuItem == R.id.action_popular_movies) {
-                            getSupportActionBar().setTitle("Popular Movies");
-                        } else if (navMenuItem == R.id.action_top_rated_movies) {
-                            getSupportActionBar().setTitle("Top Rated Movies");
-                        }
-                        if (mAdapter.getItemCount() != 0 && prevPage == currentPage) {
-                            deliverResult(new String[]{"A"});
-                        } else {
-                            mLoadingIndicator.setVisibility(View.VISIBLE);
+                        if(navMenuItem != R.id.action_favorite_movies) {
+                            if (navMenuItem == R.id.action_popular_movies) {
+                                getSupportActionBar().setTitle("Popular Movies");
+                            } else if (navMenuItem == R.id.action_top_rated_movies) {
+                                getSupportActionBar().setTitle("Top Rated Movies");
+                            }
+                            if (mAdapter.getItemCount() != 0 && prevPage == currentPage) {
+                                deliverResult(new String[]{"A"});
+                            } else {
+                                mLoadingIndicator.setVisibility(View.VISIBLE);
 
-                            forceLoad();
+                                forceLoad();
+                            }
                         }
-
                     }
 
                     @Override
@@ -304,7 +323,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         super.deliverResult(data);
                     }
                 };
-            case 2:
+            case LOADERSEARCHID:
                 return new AsyncTaskLoader<String[]>(this) {
                     @Override
                     protected void onStartLoading() {
@@ -350,12 +369,45 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 };
 
+            case LOADERIDFAVORITE:
+                Uri forecastQueryUri = MoviesContract.MoviesEntry.CONTENT_URI;
+                return new CursorLoader(this,
+                        forecastQueryUri,
+                        PROJECTION,
+                        null,
+                        null,
+                        null)
+                {
+                    @Override
+                    protected void onStartLoading() {
+
+                        if(navMenuItem == R.id.action_favorite_movies) {
+                            getSupportActionBar().setTitle("Favorite");
+                            mLoadingIndicator.setVisibility(View.VISIBLE);
+                            forceLoad();
+
+                        }
+                    }
+
+                    @Override
+                    public Cursor loadInBackground() {
+                        return super.loadInBackground();
+                    }
+
+                    @Override
+                    public void deliverResult(Cursor cursor) {
+                        super.deliverResult(cursor);
+                    }
+                };
+
+
         }
         return null;
     }
 
     @Override
-    public void onLoadFinished(Loader<String[]> loader, String[] data) {
+    public void onLoadFinished(Loader loader, Object data) {
+
         switch (loader.getId()) {
             case 1:{
 
@@ -383,7 +435,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 NetworkUtils.PAGE++;
                 if(NetworkUtils.PAGE <= NetworkUtils.TOTAL_PAGES) {
                     currentPage = NetworkUtils.PAGE;
-                    loadMovieData();
+                    loadMovieData(LOADERID);
                 }
             }
             break;
@@ -421,6 +473,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             }
 
+            case LOADERIDFAVORITE:{
+                Cursor cursor = (Cursor) data;
+                cursor.moveToPosition(-1);
+                mMovies.clear();
+                mAdapter.clean();
+                try {
+                    while (cursor.moveToNext()) {
+                        Movie movie = new Movie();
+                        movie.setId(cursor.getInt(0));
+                        movie.setTitle(cursor.getString(1));
+                        movie.setVote_average(cursor.getDouble(2));
+                        movie.setPoster_path(cursor.getString(3));
+                        mMovies.add(movie);
+               }
+                } finally {
+                    cursor.close();
+                }
+                mLoadingIndicator.setVisibility(View.INVISIBLE);
+                mAdapter.setMovieData(mMovies);
+                prevPage = currentPage;
+                NetworkUtils.PAGE = 3;
+            }
         }
 
 
@@ -428,7 +502,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void onLoaderReset(Loader<String[]> loader) {
+    public void onLoaderReset(Loader loader) {
 
     }
 
@@ -453,7 +527,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             NetworkUtils.PAGE = 1;
             currentPage = 1;
             prevPage = 0;
-            loadMovieData();
+            loadMovieData(LOADERID);
         }
         if(itemId == R.id.action_popular_movies){
 
@@ -466,9 +540,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             NetworkUtils.PAGE = 1;
             currentPage = 1;
             prevPage = 0;
-            loadMovieData();
+            loadMovieData(LOADERID);
 
         }
+
+        if(itemId == R.id.action_favorite_movies){
+
+            navMenuItem = R.id.action_favorite_movies;
+            mSearch = false;
+            mToast = Toast.makeText(this,"FavoriteMovies",Toast.LENGTH_SHORT);
+            mToast.show();
+
+            mAdapter.clean();
+            NetworkUtils.PAGE = 1;
+            currentPage = 1;
+            prevPage = 0;
+            loadMovieData(LOADERIDFAVORITE);
+
+        }
+
         if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
             mDrawerLayout.closeDrawer(GravityCompat.START);
         }

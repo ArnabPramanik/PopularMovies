@@ -1,12 +1,16 @@
 package com.arnab.android.popularmovies;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 
+import android.database.Cursor;
 import android.net.Uri;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +30,8 @@ import android.widget.TextView;
 
 import com.arnab.android.popularmovies.data.JsonParser;
 
+import com.arnab.android.popularmovies.data.MoviesContentProvider;
+import com.arnab.android.popularmovies.data.MoviesContract;
 import com.arnab.android.popularmovies.model.Movie;
 import com.arnab.android.popularmovies.model.MovieDetails;
 import com.arnab.android.popularmovies.model.MovieReview;
@@ -73,10 +79,17 @@ public class DetailView extends AppCompatActivity implements  LoaderManager.Load
     private static String SAVE_REVIEW_PAGE = "save_review_page";
     private TextView mErrorMessageReview;
     private ProgressBar mLoadingIndicatorReview;
+    private static final String SAVE_MOVIE_REVIEWS = "save_movie_reviews";
+    private static final String SAVE_MOVIE_REV_PREV = "save_movie_rev_prev";
+    private static final String SAVE_MOVIE_REV_CURR= "save_movie_rev_curr";
+
 
     //Videos
     private ArrayList<MovieTrailer> mMovieTrailers;
     private MovieTrailerAdapter mMovieTrailerAdapter;
+    private static final String SAVE_MOVIE_TRAILERS = "save_movie_trailers";
+
+    private FloatingActionButton fab;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -136,9 +149,12 @@ public class DetailView extends AppCompatActivity implements  LoaderManager.Load
             mMovieDetails = (MovieDetails) savedInstanceState.getSerializable(SAVE_MOVIE_DETAILS_OBJ);
             movieId = savedInstanceState.getInt(SAVE_MOVIE_ID);
             NetworkUtils.REVIEW_PAGE = savedInstanceState.getInt(SAVE_REVIEW_PAGE);
+            mMovieReviews = (ArrayList<MovieReview>) savedInstanceState.getSerializable(SAVE_MOVIE_REVIEWS);
+            mMovieTrailers = (ArrayList<MovieTrailer>) savedInstanceState.getSerializable(SAVE_MOVIE_TRAILERS);
+            revCurPage = savedInstanceState.getInt(SAVE_MOVIE_REV_CURR);
+            revPrevPage = savedInstanceState.getInt(SAVE_MOVIE_REV_PREV);
         }
-        revCurPage = NetworkUtils.REVIEW_PAGE;
-        revPrevPage = revCurPage - 1;
+
             //Make network request
             loadMovieDetails();
             loadReviewDetails();
@@ -147,6 +163,16 @@ public class DetailView extends AppCompatActivity implements  LoaderManager.Load
         // Enable the Up button
         if(ab != null) {
             ab.setDisplayHomeAsUpEnabled(true);
+        }
+
+        fab =  (FloatingActionButton) findViewById(R.id.fab_favorite_detail);
+
+        fab.setVisibility(View.INVISIBLE);
+        if(favorited()){
+            fab.setImageDrawable(ContextCompat.getDrawable(DetailView.this,android.R.drawable.ic_input_delete));
+        }
+        else{
+            fab.setImageDrawable(ContextCompat.getDrawable(DetailView.this,android.R.drawable.ic_input_add));
         }
 
     }
@@ -182,6 +208,10 @@ public class DetailView extends AppCompatActivity implements  LoaderManager.Load
         outState.putSerializable(SAVE_MOVIE_DETAILS_OBJ,mMovieDetails);
         outState.putInt(SAVE_MOVIE_ID,movieId);
         outState.putInt(SAVE_REVIEW_PAGE,NetworkUtils.REVIEW_PAGE);
+        outState.putSerializable(SAVE_MOVIE_REVIEWS,mMovieReviews);
+        outState.putSerializable(SAVE_MOVIE_TRAILERS,mMovieTrailers);
+        outState.putInt(SAVE_MOVIE_REV_PREV,revPrevPage);
+        outState.putInt(SAVE_MOVIE_REV_CURR,revCurPage);
     }
 
     private void showMovieDataView() {
@@ -251,7 +281,8 @@ public class DetailView extends AppCompatActivity implements  LoaderManager.Load
                 return new AsyncTaskLoader<String[]>(this) {
                     @Override
                     protected void onStartLoading() {
-                        if (mMovieReviews != null && revCurPage == revPrevPage) {
+
+                        if (mMovieReviews != null && revCurPage == revPrevPage && mMovieReviews.size() != 0) {
                             deliverResult(new String[0]);
                         } else {
                             mLoadingIndicatorReview.setVisibility(View.VISIBLE);
@@ -286,20 +317,23 @@ public class DetailView extends AppCompatActivity implements  LoaderManager.Load
 
     @Override
     public void onLoadFinished(Loader<String[]> loader, String[] data) {
-
+        fab.setVisibility(View.VISIBLE);
         switch(loader.getId()) {
+
             case 3:
                 mLoadingIndicator.setVisibility(View.INVISIBLE);
             if (mMovieDetails != null && mMovieTrailers != null) {
                 showMovieDataView();
                 setMovieData();
                 mMovieTrailerAdapter.setmMovieTrailers(mMovieTrailers);
+                activateFAB();
             } else {
                 showErrorMessage();
             }
             break;
             case 4:
                 mLoadingIndicatorReview.setVisibility(View.INVISIBLE);
+
                 if(mMovieReviews != null && mMovieReviews.size() != 0){
                     showMovieReviewView();
                     revPrevPage = revCurPage;
@@ -312,7 +346,49 @@ public class DetailView extends AppCompatActivity implements  LoaderManager.Load
         }
     }
 
-    
+    private boolean favorited(){
+        Cursor cursor = getContentResolver().query(MoviesContract.MoviesEntry.CONTENT_URI.buildUpon().appendPath(String.valueOf(movieId)).build(),MainActivity.PROJECTION,null,null,null);
+
+
+       if(cursor.getCount() != 0){
+           cursor.close();
+            return true;
+       }
+       cursor.close();
+       return false;
+    }
+
+
+    private void activateFAB() {
+
+        fab.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                boolean favorited = favorited();
+                if(favorited){
+                    //unfavorite it
+                    Uri contentUri = MoviesContract.MoviesEntry.CONTENT_URI;
+                    getContentResolver().delete(contentUri, "movie_id=?", new String[]{String.valueOf(mMovieDetails.getId())});
+                    //set image to outline
+                    fab.setImageDrawable(ContextCompat.getDrawable(DetailView.this,android.R.drawable.ic_input_add));
+                }
+                else{
+                    //favorite it
+                    ContentValues values = new ContentValues();
+                    values.put(MoviesContract.MoviesEntry.MOVIE_ID,mMovieDetails.getId());
+                    values.put(MoviesContract.MoviesEntry.MOVIE_TITLE,mMovieDetails.getTitle());
+                    values.put(MoviesContract.MoviesEntry.RATING,mMovieDetails.getVote_average());
+                    values.put(MoviesContract.MoviesEntry.IMAGE_URL,mMovieDetails.getPoster_path());
+                    getContentResolver().insert(MoviesContract.MoviesEntry.CONTENT_URI, values);
+
+                    //set image to filled
+                    fab.setImageDrawable(ContextCompat.getDrawable(DetailView.this,android.R.drawable.ic_input_delete));
+                }
+            }
+        });
+    }
+
 
     @Override
     public void onLoaderReset(Loader<String[]> loader) {

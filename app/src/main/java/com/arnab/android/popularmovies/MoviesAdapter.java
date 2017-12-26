@@ -75,8 +75,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
     }
 
     public void setMovieData(ArrayList<Movie> movies){
-        if(movies == null){Log.wtf("IS","NULL");}
-        if(this.movies == null){Log.wtf("IS ALSO","NULL ALSO");};
+
         this.movies.addAll(movies);
         notifyDataSetChanged();
     }

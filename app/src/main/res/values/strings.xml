@@ -3,8 +3,10 @@
     <string name="error_message">Something went wrong</string>
     <string name="popular_movies">Popular Movies</string>
     <string name="top_rated_movies">Top Rated Movies</string>
+    <string name="favorite_movies">Favorite Movies</string>
     <string name="open">Open</string>
     <string name="close">Close</string>
     <string name="previous">Previous</string>
     <string name="next">Next</string>
+    <string name="content_authority">com.arnab.android.popularmovies</string>
 </resources>
